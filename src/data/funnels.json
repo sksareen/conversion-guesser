@@ -1,0 +1,182 @@
+[
+  {
+    "product": "E-commerce (Average)",
+    "funnel": "complete checkout after adding items to cart",
+    "conversion": 22.9,
+    "sourceURL": "https://www.statista.com/statistics/477804/online-shopping-cart-abandonment-rate-worldwide/"
+  },
+  {
+    "product": "Email Marketing",
+    "funnel": "open marketing emails",
+    "conversion": 21.33,
+    "sourceURL": "https://mailchimp.com/resources/email-marketing-benchmarks/"
+  },
+  {
+    "product": "Email Marketing",
+    "funnel": "click on links in marketing emails",
+    "conversion": 2.62,
+    "sourceURL": "https://mailchimp.com/resources/email-marketing-benchmarks/"
+  },
+  {
+    "product": "Landing Pages",
+    "funnel": "convert on landing pages (median)",
+    "conversion": 4.0,
+    "sourceURL": "https://unbounce.com/conversion-benchmark-report/"
+  },
+  {
+    "product": "Google Ads",
+    "funnel": "click on search ads (average CTR)",
+    "conversion": 3.17,
+    "sourceURL": "https://www.wordstream.com/blog/ws/2020/04/06/google-ads-benchmarks"
+  },
+  {
+    "product": "Google Ads",
+    "funnel": "convert after clicking on search ads",
+    "conversion": 4.4,
+    "sourceURL": "https://www.wordstream.com/blog/ws/2020/04/06/google-ads-benchmarks"
+  },
+  {
+    "product": "SaaS",
+    "funnel": "convert from free trial to paid",
+    "conversion": 25.0,
+    "sourceURL": "https://www.profitwell.com/recur/all/average-saas-conversion-rates"
+  },
+  {
+    "product": "SaaS",
+    "funnel": "stay subscribed after one year (retention)",
+    "conversion": 35.0,
+    "sourceURL": "https://www.profitwell.com/recur/all/average-saas-churn-rate"
+  },
+  {
+    "product": "Mobile Apps",
+    "funnel": "retain users after day 1",
+    "conversion": 25.3,
+    "sourceURL": "https://www.statista.com/statistics/259329/ios-application-user-retention-rate/"
+  },
+  {
+    "product": "Mobile Apps",
+    "funnel": "retain users after 30 days",
+    "conversion": 5.7,
+    "sourceURL": "https://www.statista.com/statistics/259329/ios-application-user-retention-rate/"
+  },
+  {
+    "product": "Mobile Apps",
+    "funnel": "convert from free to paid version",
+    "conversion": 2.0,
+    "sourceURL": "https://www.businessofapps.com/marketplace/in-app-purchases/research/in-app-purchase-statistics/"
+  },
+  {
+    "product": "B2B Lead Generation",
+    "funnel": "convert website visitors to leads",
+    "conversion": 2.35,
+    "sourceURL": "https://www.ruler-analytics.com/blog/marketing-statistics-2022/"
+  },
+  {
+    "product": "B2B Lead Generation",
+    "funnel": "convert leads to sales opportunities",
+    "conversion": 13.0,
+    "sourceURL": "https://www.ruler-analytics.com/blog/marketing-statistics-2022/"
+  },
+  {
+    "product": "B2B Lead Generation",
+    "funnel": "convert opportunities to customers",
+    "conversion": 6.0,
+    "sourceURL": "https://www.ruler-analytics.com/blog/marketing-statistics-2022/"
+  },
+  {
+    "product": "Facebook Ads",
+    "funnel": "click on newsfeed ads (average CTR)",
+    "conversion": 1.11,
+    "sourceURL": "https://www.wordstream.com/blog/ws/2017/02/28/facebook-advertising-benchmarks"
+  },
+  {
+    "product": "Facebook Ads",
+    "funnel": "convert after clicking on ads",
+    "conversion": 9.21,
+    "sourceURL": "https://www.wordstream.com/blog/ws/2017/02/28/facebook-advertising-benchmarks"
+  },
+  {
+    "product": "E-commerce",
+    "funnel": "purchase on first visit",
+    "conversion": 1.9,
+    "sourceURL": "https://www.adroll.com/blog/retail-e-commerce-conversion-rate-guide"
+  },
+  {
+    "product": "E-commerce",
+    "funnel": "purchase after searching on site",
+    "conversion": 4.63,
+    "sourceURL": "https://www.adroll.com/blog/retail-e-commerce-conversion-rate-guide"
+  },
+  {
+    "product": "YouTube",
+    "funnel": "click on video ads (average CTR)",
+    "conversion": 0.514,
+    "sourceURL": "https://www.businessinsider.com/average-youtube-advertising-ctr"
+  },
+  {
+    "product": "Webinars",
+    "funnel": "convert registrants to attendees",
+    "conversion": 55.0,
+    "sourceURL": "https://blog.gotomeeting.com/7-webinar-benchmarks-every-marketer-should-know/"
+  },
+  {
+    "product": "Webinars",
+    "funnel": "stay until the end of a webinar",
+    "conversion": 91.0,
+    "sourceURL": "https://blog.gotomeeting.com/7-webinar-benchmarks-every-marketer-should-know/"
+  },
+  {
+    "product": "Content Marketing",
+    "funnel": "read a blog post to the end",
+    "conversion": 25.0,
+    "sourceURL": "https://cxl.com/blog/how-to-measure-content-marketing-roi/"
+  },
+  {
+    "product": "Instagram",
+    "funnel": "engage with branded posts (likes, comments)",
+    "conversion": 1.60,
+    "sourceURL": "https://www.rivaliq.com/blog/social-media-industry-benchmark-report/"
+  },
+  {
+    "product": "LinkedIn",
+    "funnel": "engage with company posts",
+    "conversion": 0.7,
+    "sourceURL": "https://www.rivaliq.com/blog/social-media-industry-benchmark-report/"
+  },
+  {
+    "product": "Freemium Apps",
+    "funnel": "upgrade from free plan to paid",
+    "conversion": 4.0,
+    "sourceURL": "https://www.businessofapps.com/marketplace/in-app-purchases/research/in-app-purchase-statistics/"
+  },
+  {
+    "product": "Customer Support",
+    "funnel": "submit feedback after support interaction",
+    "conversion": 30.0,
+    "sourceURL": "https://www.helpscout.com/blog/customer-satisfaction-survey-response-rates/"
+  },
+  {
+    "product": "Subscription Box",
+    "funnel": "renew subscription after 6 months",
+    "conversion": 48.0,
+    "sourceURL": "https://www.mckinsey.com/industries/retail/our-insights/thinking-inside-the-subscription-box-new-research-on-ecommerce-consumers"
+  },
+  {
+    "product": "SMS Marketing",
+    "funnel": "click on links in marketing SMS",
+    "conversion": 19.0,
+    "sourceURL": "https://www.mailup.com/resource/sms-statistics-open-rates-conversions/"
+  },
+  {
+    "product": "Push Notifications",
+    "funnel": "open mobile app push notifications",
+    "conversion": 7.8,
+    "sourceURL": "https://www.businessofapps.com/marketplace/push-notifications/research/push-notifications-statistics/"
+  },
+  {
+    "product": "Browser Notifications",
+    "funnel": "click on web push notifications",
+    "conversion": 10.85,
+    "sourceURL": "https://web-push-book.gauntface.com/chapter-01/02-how-well-do-they-work/"
+  }
+]

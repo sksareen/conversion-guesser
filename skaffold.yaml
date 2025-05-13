@@ -1,0 +1,13 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+build:
+  artifacts:
+  - image: gcr.io/$PROJECT_ID/guess-conv
+    context: .
+    docker:
+      dockerfile: Dockerfile
+deploy:
+  cloudrun:
+    region: us-central1
+    projectId: $PROJECT_ID
+    serviceName: guess-conv

@@ -1,0 +1,272 @@
+[
+  {
+    "company": "Airbnb",
+    "funnel": "conversion rate from website visitors to bookings",
+    "conversion": 3.2,
+    "sourceURL": "https://backlinko.com/airbnb-users",
+    "logo": "/logos/airbnb.svg",
+    "brandColor": "#FF5A5F",
+    "description": "Airbnb's marketplace connects people looking for accommodations with hosts offering unique places to stay worldwide."
+  },
+  {
+    "company": "Amazon",
+    "funnel": "Prime free trial to paid conversion rate",
+    "conversion": 70.0,
+    "sourceURL": "https://www.businessofapps.com/data/amazon-prime-statistics/",
+    "logo": "/logos/amazon.svg",
+    "brandColor": "#FF9900",
+    "description": "Amazon Prime offers free shipping, streaming, and other benefits for a subscription fee."
+  },
+  {
+    "company": "Amazon",
+    "funnel": "purchase conversion rate for non-Prime members",
+    "conversion": 13.0,
+    "sourceURL": "https://www.businessofapps.com/data/amazon-statistics/",
+    "logo": "/logos/amazon.svg",
+    "brandColor": "#FF9900",
+    "description": "Amazon's e-commerce platform connects buyers with products from millions of sellers."
+  },
+  {
+    "company": "Amazon",
+    "funnel": "purchase conversion rate for Prime members",
+    "conversion": 74.0,
+    "sourceURL": "https://www.businessofapps.com/data/amazon-statistics/",
+    "logo": "/logos/amazon.svg",
+    "brandColor": "#FF9900",
+    "description": "Amazon Prime members shop with free shipping and other benefits."
+  },
+  {
+    "company": "Uber",
+    "funnel": "app download to first ride conversion",
+    "conversion": 11.0,
+    "sourceURL": "https://www.apptamin.com/blog/app-user-retention/",
+    "logo": "/logos/uber.svg",
+    "brandColor": "#000000",
+    "description": "Uber connects riders with drivers through a mobile app to provide transportation services."
+  },
+  {
+    "company": "Netflix",
+    "funnel": "free trial to paid subscription conversion",
+    "conversion": 93.0,
+    "sourceURL": "https://www.businessofapps.com/data/netflix-statistics/",
+    "logo": "/logos/netflix.svg",
+    "brandColor": "#E50914",
+    "description": "Netflix is a subscription-based streaming service offering movies and TV shows."
+  },
+  {
+    "company": "Spotify",
+    "funnel": "free users to premium conversion rate",
+    "conversion": 46.0,
+    "sourceURL": "https://www.businessofapps.com/data/spotify-statistics/",
+    "logo": "/logos/spotify.svg",
+    "brandColor": "#1DB954",
+    "description": "Spotify offers music streaming with both free and premium subscription tiers."
+  },
+  {
+    "company": "LinkedIn",
+    "funnel": "InMail response rate",
+    "conversion": 18.0,
+    "sourceURL": "https://business.linkedin.com/content/dam/me/business/en-us/talent-solutions/resources/pdfs/global-inmail-best-practices.pdf",
+    "logo": "/logos/linkedin.svg",
+    "brandColor": "#0077B5",
+    "description": "LinkedIn's InMail allows users to message people they're not connected with on the platform."
+  },
+  {
+    "company": "Pinterest",
+    "funnel": "clickthrough rate on promoted pins",
+    "conversion": 1.1,
+    "sourceURL": "https://www.omnicoreagency.com/pinterest-statistics/",
+    "logo": "/logos/pinterest.svg",
+    "brandColor": "#E60023",
+    "description": "Pinterest's promoted pins are advertisements that appear in users' feeds."
+  },
+  {
+    "company": "TikTok",
+    "funnel": "conversion rate for TikTok ads",
+    "conversion": 1.41,
+    "sourceURL": "https://www.businessofapps.com/data/tik-tok-statistics/",
+    "logo": "/logos/tiktok.svg",
+    "brandColor": "#000000",
+    "description": "TikTok offers various ad formats to help businesses reach its user base."
+  },
+  {
+    "company": "YouTube",
+    "funnel": "click-through rate on video ads",
+    "conversion": 0.514,
+    "sourceURL": "https://www.businessinsider.com/average-youtube-advertising-ctr",
+    "logo": "/logos/youtube.svg",
+    "brandColor": "#FF0000",
+    "description": "YouTube's pre-roll and mid-roll ads appear before or during video content."
+  },
+  {
+    "company": "Google",
+    "funnel": "search ad click-through rate",
+    "conversion": 3.17,
+    "sourceURL": "https://www.wordstream.com/blog/ws/2020/04/06/google-ads-benchmarks",
+    "logo": "/logos/google.svg",
+    "brandColor": "#4285F4",
+    "description": "Google Ads appear in search results when users query relevant keywords."
+  },
+  {
+    "company": "Facebook",
+    "funnel": "ad clickthrough rate across all industries",
+    "conversion": 0.9,
+    "sourceURL": "https://www.wordstream.com/blog/ws/2017/02/28/facebook-advertising-benchmarks",
+    "logo": "/logos/facebook.svg",
+    "brandColor": "#1877F2",
+    "description": "Facebook ads appear in users' news feeds and other placements on the platform."
+  },
+  {
+    "company": "Instagram",
+    "funnel": "engagement rate for branded posts",
+    "conversion": 1.6,
+    "sourceURL": "https://www.rivaliq.com/blog/social-media-industry-benchmark-report/",
+    "logo": "/logos/instagram.svg",
+    "brandColor": "#E1306C",
+    "description": "Branded posts are content published by companies on their Instagram profiles."
+  },
+  {
+    "company": "Slack",
+    "funnel": "free to paid conversion rate",
+    "conversion": 30.0,
+    "sourceURL": "https://www.profitwell.com/recur/all/saas-freemium-conversion-rate",
+    "logo": "/logos/slack.svg",
+    "brandColor": "#4A154B",
+    "description": "Slack offers team communication tools with both free and paid tiers."
+  },
+  {
+    "company": "Dropbox",
+    "funnel": "free to paid plan conversion",
+    "conversion": 4.0,
+    "sourceURL": "https://www.profitwell.com/recur/all/freemium-saas-stats",
+    "logo": "/logos/dropbox.svg",
+    "brandColor": "#0061FF",
+    "description": "Dropbox provides cloud storage solutions with limited free storage and paid upgrades."
+  },
+  {
+    "company": "Twitter",
+    "funnel": "promoted tweet engagement rate",
+    "conversion": 1.5,
+    "sourceURL": "https://business.twitter.com/en/advertising/campaign-types/promoted-tweets.html",
+    "logo": "/logos/twitter.svg",
+    "brandColor": "#1DA1F2",
+    "description": "Promoted tweets are ads that appear in users' Twitter feeds."
+  },
+  {
+    "company": "Shopify",
+    "funnel": "free trial to paid conversion rate",
+    "conversion": 14.0,
+    "sourceURL": "https://www.profitwell.com/recur/all/average-saas-conversion-rates",
+    "logo": "/logos/shopify.svg",
+    "brandColor": "#7AB55C",
+    "description": "Shopify offers e-commerce solutions for businesses with a free trial period."
+  },
+  {
+    "company": "Hulu",
+    "funnel": "ad completion rate",
+    "conversion": 96.1,
+    "sourceURL": "https://www.rapidtvnews.com/2018052652108/hulu-claims-impressive-ad-performance-results.html",
+    "logo": "/logos/hulu.svg",
+    "brandColor": "#3DBB3D",
+    "description": "Hulu shows ads to subscribers on its ad-supported streaming plans."
+  },
+  {
+    "company": "Salesforce",
+    "funnel": "lead to opportunity conversion rate",
+    "conversion": 13.0,
+    "sourceURL": "https://www.salesforce.com/blog/sales-statistics/",
+    "logo": "/logos/salesforce.svg",
+    "brandColor": "#00A1E0",
+    "description": "Salesforce's CRM platform helps businesses track leads and opportunities."
+  },
+  {
+    "company": "Mailchimp",
+    "funnel": "average email open rate",
+    "conversion": 21.33,
+    "sourceURL": "https://mailchimp.com/resources/email-marketing-benchmarks/",
+    "logo": "/logos/mailchimp.svg",
+    "brandColor": "#FFE01B",
+    "description": "Mailchimp provides email marketing services for businesses."
+  },
+  {
+    "company": "DoorDash",
+    "funnel": "app download to first order conversion",
+    "conversion": 18.0,
+    "sourceURL": "https://www.businessofapps.com/data/food-delivery-app-market/",
+    "logo": "/logos/doordash.svg",
+    "brandColor": "#FF3008",
+    "description": "DoorDash connects customers with restaurants for food delivery via mobile app."
+  },
+  {
+    "company": "Twitch",
+    "funnel": "viewer to subscriber conversion rate",
+    "conversion": 2.5,
+    "sourceURL": "https://backlinko.com/twitch-users",
+    "logo": "/logos/twitch.svg",
+    "brandColor": "#9146FF",
+    "description": "Twitch allows viewers to subscribe to their favorite streamers for monthly payments."
+  },
+  {
+    "company": "Robinhood",
+    "funnel": "signup to funded account conversion",
+    "conversion": 17.0,
+    "sourceURL": "https://www.businessofapps.com/data/robinhood-statistics/",
+    "logo": "/logos/robinhood.svg",
+    "brandColor": "#00C805",
+    "description": "Robinhood offers commission-free stock trading through its mobile app."
+  },
+  {
+    "company": "Discord",
+    "funnel": "free to Nitro subscription conversion",
+    "conversion": 5.0,
+    "sourceURL": "https://www.businessofapps.com/data/discord-statistics/",
+    "logo": "/logos/discord.svg",
+    "brandColor": "#5865F2",
+    "description": "Discord's Nitro subscription offers enhanced features for the communications platform."
+  },
+  {
+    "company": "Microsoft Teams",
+    "funnel": "daily active users to weekly active users ratio",
+    "conversion": 65.0,
+    "sourceURL": "https://www.businessofapps.com/data/microsoft-teams-statistics/",
+    "logo": "/logos/microsoft-teams.svg",
+    "brandColor": "#6264A7",
+    "description": "Microsoft Teams is a collaboration platform for workplace communication."
+  },
+  {
+    "company": "Grubhub",
+    "funnel": "browse to order conversion rate",
+    "conversion": 3.19,
+    "sourceURL": "https://www.businessofapps.com/data/grubhub-statistics/",
+    "logo": "/logos/grubhub.svg",
+    "brandColor": "#FF8000",
+    "description": "Grubhub connects diners with local restaurants for food delivery."
+  },
+  {
+    "company": "HubSpot",
+    "funnel": "free to paid conversion rate",
+    "conversion": 2.2,
+    "sourceURL": "https://www.profitwell.com/recur/all/freemium-saas-stats",
+    "logo": "/logos/hubspot.svg",
+    "brandColor": "#FF7A59",
+    "description": "HubSpot offers marketing, sales, and customer service software with freemium pricing."
+  },
+  {
+    "company": "Medium",
+    "funnel": "free reader to paid member conversion",
+    "conversion": 5.0,
+    "sourceURL": "https://www.businessofapps.com/data/medium-statistics/",
+    "logo": "/logos/medium.svg",
+    "brandColor": "#000000",
+    "description": "Medium is a publishing platform with both free and paid membership options."
+  },
+  {
+    "company": "Zoom",
+    "funnel": "free to paid user conversion",
+    "conversion": 8.3,
+    "sourceURL": "https://www.profitwell.com/recur/all/saas-freemium-conversion-rate",
+    "logo": "/logos/zoom.svg",
+    "brandColor": "#2D8CFF",
+    "description": "Zoom offers video conferencing with both free and paid subscription tiers."
+  }
+]
