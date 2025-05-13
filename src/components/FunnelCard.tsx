@@ -12,9 +12,11 @@ export default function FunnelCard() {
   const [userGuess, setUserGuess] = useState<string>('');
   const [showResult, setShowResult] = useState(false);
   const [guessCount, setGuessCount] = useState(0);
-  const { addScore, scores } = useGameStore();
+  const { addScore, scores, username, setUsername } = useGameStore();
   const [showScoreOverlay, setShowScoreOverlay] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [showUsernamePrompt, setShowUsernamePrompt] = useState(false);
+  const [tempUsername, setTempUsername] = useState('');
   
   // Get a random company from the data, avoiding recently used ones if possible
   const getRandomCompany = () => {
@@ -89,6 +91,18 @@ export default function FunnelCard() {
       return;
     }
     
+    // If this is their first guess and username is still Anonymous, show the username prompt
+    if (scores.length === 0 && username === 'Anonymous') {
+      setTempUsername('');
+      setShowUsernamePrompt(true);
+      return;
+    }
+    
+    submitScoreAndProceed(guess);
+  };
+  
+  // Function to handle actual score submission after potentially setting username
+  const submitScoreAndProceed = (guess: number) => {
     const actual = currentCompany.conversion;
     const error = Math.abs(guess - actual);
     
@@ -107,6 +121,18 @@ export default function FunnelCard() {
 
     // Trigger overlay to show updated overall score
     setShowScoreOverlay(true);
+  };
+  
+  // Handle username submission
+  const handleUsernameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (tempUsername.trim()) {
+      setUsername(tempUsername.trim());
+    }
+    
+    setShowUsernamePrompt(false);
+    submitScoreAndProceed(parseFloat(userGuess));
   };
   
   // Next question handler
@@ -317,45 +343,111 @@ export default function FunnelCard() {
                   const averageError = scores.length > 0 ? scores.reduce((sum, s) => sum + s.error, 0) / scores.length : 0;
                   const accuracyScore = Math.max(0, 100 - (averageError * 3));
                   const lastScore = scores.length > 0 ? scores[scores.length - 1] : null;
-                  const getPerformanceLevel = () => {
-                    if (averageError <= 5) return { text: "Marketing Guru", color: "text-green-600" };
-                    if (averageError <= 10) return { text: "Conversion Expert", color: "text-green-500" };
-                    if (averageError <= 15) return { text: "Digital Marketer", color: "text-yellow-600" };
-                    if (averageError <= 20) return { text: "Marketing Student", color: "text-yellow-500" };
-                    return { text: "Conversion Novice", color: "text-red-500" };
-                  };
-                  const performance = getPerformanceLevel();
                   return (
                     <>
-                      <p className={`text-3xl sm:text-4xl font-extrabold ${performance.color}`}>{performance.text}</p>
-                      <p className="text-sm text-gray-500 mb-4">Your Performance Level</p>
-                      
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="bg-gray-50 rounded-lg p-3">
-                          <p className="text-xs uppercase text-gray-500">Average Error</p>
-                          <p className="text-2xl font-bold text-primary">{averageError.toFixed(1)}%</p>
-                        </div>
-                        {lastScore && (
-                          <div className="bg-gray-50 rounded-lg p-3">
-                            <p className="text-xs uppercase text-gray-500">Last Guess Error</p>
-                            <p className={`text-2xl font-bold ${lastScore.error <= 5 ? 'text-green-600' : lastScore.error <= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
-                              {lastScore.error.toFixed(1)}%
+                      {lastScore && (
+                        <>
+                          <div className="mb-6">
+                            <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Last Guess</p>
+                            <div className="flex items-baseline justify-center">
+                              <p className={`text-5xl font-black ${
+                                lastScore.error <= 5 ? 'text-green-600' : 
+                                lastScore.error <= 15 ? 'text-yellow-600' : 
+                                'text-red-600'
+                              }`}>
+                                {(100 - lastScore.error * 3).toFixed(0)}
+                              </p>
+                              <p className="text-xl text-gray-500 ml-1">pts</p>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">
+                              Error margin: {lastScore.error.toFixed(1)}%
                             </p>
                           </div>
-                        )}
-                      </div>
+                          
+                          <div className="h-px bg-gray-200 w-3/4 mx-auto mb-5"></div>
+                          
+                          <div className="flex justify-center mb-2">
+                            <div className="text-center">
+                              <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Overall Avg</p>
+                              <p className="text-2xl font-bold text-primary">{averageError.toFixed(1)}% error</p>
+                            </div>
+                          </div>
+                        </>
+                      )}
                       
-                      <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden mt-2">
                         <div 
                           className="h-full rounded-full"
                           style={{ width: `${accuracyScore}%`, background: 'linear-gradient(to right, #ef4444, #f59e0b, #10b981)' }}
                         />
                       </div>
-                      <p className="text-sm text-gray-600 mt-2">Accuracy Score: {accuracyScore.toFixed(0)}%</p>
                     </>
                   );
                 })()
               }
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Username prompt overlay */}
+      <AnimatePresence>
+        {showUsernamePrompt && (
+          <motion.div
+            key="username-prompt"
+            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-xl p-6 shadow-lg w-11/12 max-w-sm"
+            >
+              <h3 className="text-xl font-bold text-center mb-4">Join the Leaderboard!</h3>
+              <p className="text-gray-600 mb-4 text-center">
+                Choose a username to track your progress and see how you rank against others.
+              </p>
+              
+              <form onSubmit={handleUsernameSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="username-input" className="block text-sm font-medium text-gray-700 mb-1">
+                    Username (max 10 characters)
+                  </label>
+                  <input
+                    id="username-input"
+                    type="text"
+                    value={tempUsername}
+                    onChange={(e) => setTempUsername(e.target.value.slice(0, 10))}
+                    maxLength={10}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Enter a username"
+                    autoFocus
+                  />
+                </div>
+                
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowUsernamePrompt(false);
+                      submitScoreAndProceed(parseFloat(userGuess));
+                    }}
+                    className="flex-1 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Skip
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2 bg-primary text-white rounded-md hover:bg-blue-600"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </motion.div>
         )}
