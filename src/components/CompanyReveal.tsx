@@ -12,6 +12,7 @@ interface CompanyRevealProps {
     logo: string;
     brandColor: string;
     description: string;
+    sourceURL?: string;
   };
   guess: number;
   onContinue: () => void;
