@@ -1,20 +1,54 @@
+'use client';
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import FunnelCard from '@/components/FunnelCard';
 import ScoreTable from '@/components/ScoreTable';
 import WelcomeDialog from '@/components/WelcomeDialog';
 
 export default function Home() {
+  const [isHeaderExpanded, setIsHeaderExpanded] = useState(true);
+  
   return (
     <div className="flex flex-col gap-8">
       <WelcomeDialog />
       
-      <header className="text-center">
-        <h1 className="text-3xl md:text-4xl font-bold text-primary mb-3">Guess the Conversion</h1>
-        <p className="text-gray-600">
-          Test your marketing knowledge by guessing real conversion rates 
-          from top companies like <span className="font-medium">Airbnb</span>, <span className="font-medium">Netflix</span>, 
-          and <span className="font-medium">Spotify</span>.
-        </p>
-      </header>
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <button 
+          onClick={() => setIsHeaderExpanded(!isHeaderExpanded)} 
+          className="w-full px-6 py-4 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none"
+        >
+          <h1 className="text-2xl md:text-3xl font-bold text-primary">Guess the Conversion</h1>
+          <svg
+            className={`w-5 h-5 transform transition-transform ${isHeaderExpanded ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        
+        <AnimatePresence initial={false}>
+          {isHeaderExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden"
+            >
+              <div className="p-6 text-center">
+                <p className="text-gray-600">
+                  Test your marketing knowledge by guessing real conversion rates 
+                  from top companies like <span className="font-medium">Airbnb</span>, <span className="font-medium">Netflix</span>, 
+                  and <span className="font-medium">Spotify</span>.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       
       <FunnelCard />
       
