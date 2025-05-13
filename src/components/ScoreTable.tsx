@@ -154,12 +154,12 @@ export default function ScoreTable() {
                 >
                   Your Stats
                 </button>
-                {/* <button
+                <button
                   className={`px-4 py-2 text-sm font-medium ${activeTab === 'leaderboard' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700'}`}
                   onClick={() => setActiveTab('leaderboard')}
                 >
-                  Global Leaderboard
-                </button> */}
+                  Leaderboard
+                </button>
               </div>
               
               {activeTab === 'personal' ? (
@@ -239,7 +239,7 @@ export default function ScoreTable() {
               ) : (
                 <div>
                   <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                    <h3 className="text-lg font-bold text-center mb-4">Global Leaderboard</h3>
+                    <h3 className="text-lg font-bold text-center mb-4">Leaderboard</h3>
                     
                     {isLoading ? (
                       <div className="text-center py-8 text-gray-500">
