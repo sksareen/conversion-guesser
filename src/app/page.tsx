@@ -30,7 +30,7 @@ export default function Home() {
             <span className="hidden sm:inline mx-2">•</span>
             <span>Created by </span>
             <a 
-              href="https://soversareen.com" 
+              href="https://saversareen.com" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="ml-1 text-primary font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-sm inline-flex items-center"
