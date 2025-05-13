@@ -16,22 +16,37 @@ interface GameState {
   clearScores: () => void;
 }
 
+// TypeScript type for the set function
+type SetState = (
+  partial: GameState | Partial<GameState> | ((state: GameState) => GameState | Partial<GameState>),
+  replace?: boolean
+) => void;
+
 // Create a basic version of the store
-const createBaseStore = (set) => ({
+const createBaseStore = (set: SetState) => ({
   scores: [],
-  addScore: (score) => set((state) => ({ 
+  addScore: (score: ScoreEntry) => set((state: GameState) => ({ 
     scores: [...state.scores, score]
   })),
   clearScores: () => set({ scores: [] }),
 });
 
+// Type for the get and api functions
+type GetState = () => GameState;
+type StoreApi = {
+  setState: SetState;
+  getState: GetState;
+  subscribe: (listener: (state: GameState, prevState: GameState) => void) => () => void;
+  destroy: () => void;
+};
+
 // Create the store with persistence middleware
 export const useGameStore = create<GameState>()(
-  (set, get, api) => ({
+  (set: SetState, get: GetState, api: StoreApi) => ({
     ...createBaseStore(set),
     _hasHydrated: false,
     _hasCheckedStorage: false,
-    addScore: (score) => {
+    addScore: (score: ScoreEntry) => {
       // Skip during SSR and ensure hydration
       if (typeof window === 'undefined') return;
       createBaseStore(set).addScore(score);
