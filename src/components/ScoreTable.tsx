@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/lib/store';
 
 export default function ScoreTable() {
-  const { scores, clearScores, username, setUsername, globalLeaderboard } = useGameStore();
+  const { scores, clearScores, username, setUsername, globalLeaderboard, fetchLeaderboard, isLoading } = useGameStore();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('personal');
   const [isEditingName, setIsEditingName] = useState(false);
@@ -19,6 +19,13 @@ export default function ScoreTable() {
     
   // Calculate accuracy score (100 - averageError, min 0)
   const accuracyScore = Math.max(0, 100 - (averageError * 3));
+  
+  // Fetch leaderboard when component mounts or tab changes to leaderboard
+  useEffect(() => {
+    if (activeTab === 'leaderboard') {
+      fetchLeaderboard();
+    }
+  }, [activeTab, fetchLeaderboard]);
   
   if (scores.length === 0) {
     return null; // Don't render anything if no scores yet
@@ -234,7 +241,15 @@ export default function ScoreTable() {
                   <div className="bg-gray-50 rounded-xl p-4 mb-6">
                     <h3 className="text-lg font-bold text-center mb-4">Global Leaderboard</h3>
                     
-                    {globalLeaderboard.length === 0 ? (
+                    {isLoading ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <svg className="animate-spin h-8 w-8 mx-auto text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p className="mt-2">Loading leaderboard...</p>
+                      </div>
+                    ) : globalLeaderboard.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">
                         <p>No entries yet! Be the first to join the leaderboard.</p>
                       </div>

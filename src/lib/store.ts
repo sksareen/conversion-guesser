@@ -27,9 +27,10 @@ interface GameState {
   addScore: (score: ScoreEntry) => void;
   clearScores: () => void;
   setUsername: (name: string) => void;
-  updateLeaderboard: () => void;
-  addLeaderboardEntry: (entry: LeaderboardEntry) => void;
-  resetLeaderboard: () => void;
+  updateLeaderboard: () => Promise<void>;
+  fetchLeaderboard: () => Promise<void>;
+  resetLeaderboard: () => Promise<void>;
+  isLoading: boolean;
 }
 
 // TypeScript type for the set function
@@ -43,12 +44,13 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
   scores: [],
   username: 'Anonymous',
   globalLeaderboard: [],
+  isLoading: false,
   addScore: (score: ScoreEntry) => set((state: GameState) => ({ 
     scores: [...state.scores, score]
   })),
   clearScores: () => set({ scores: [] }),
   setUsername: (name: string) => set({ username: name.slice(0, 10) }), // Limit to 10 chars
-  updateLeaderboard: () => {
+  updateLeaderboard: async () => {
     const state = get();
     if (state.scores.length === 0) return;
     
@@ -61,29 +63,56 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
     else if (averageError <= 15) performanceLevel = "Digital Marketer";
     else if (averageError <= 20) performanceLevel = "Marketing Student";
     
-    const entry: LeaderboardEntry = {
-      id: state.username + '-' + Date.now(),
-      username: state.username,
-      averageError,
-      totalGuesses: state.scores.length,
-      bestError,
-      performanceLevel,
-      lastUpdated: Date.now()
-    };
+    set({ isLoading: true });
     
-    get().addLeaderboardEntry(entry);
+    try {
+      // Send the leaderboard entry to the API
+      const response = await fetch('/api/leaderboard', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: state.username,
+          averageError,
+          totalGuesses: state.scores.length,
+          bestError,
+          performanceLevel
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update leaderboard');
+      }
+      
+      const data = await response.json();
+      set({ globalLeaderboard: data.leaderboard, isLoading: false });
+    } catch (error) {
+      console.error('Error updating leaderboard:', error);
+      set({ isLoading: false });
+    }
   },
-  addLeaderboardEntry: (entry: LeaderboardEntry) => set((state: GameState) => {
-    // Filter out old entries from same user
-    const filteredLeaderboard = state.globalLeaderboard.filter(e => e.username !== entry.username);
-    // Add new entry and sort by averageError (lowest first)
-    const newLeaderboard = [...filteredLeaderboard, entry]
-      .sort((a, b) => a.averageError - b.averageError)
-      .slice(0, 20); // Keep only top 20 entries
+  fetchLeaderboard: async () => {
+    set({ isLoading: true });
     
-    return { globalLeaderboard: newLeaderboard };
-  }),
-  resetLeaderboard: () => set({ globalLeaderboard: [] })
+    try {
+      const response = await fetch('/api/leaderboard');
+      if (!response.ok) {
+        throw new Error('Failed to fetch leaderboard');
+      }
+      
+      const data = await response.json();
+      set({ globalLeaderboard: data.leaderboard, isLoading: false });
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+      set({ isLoading: false });
+    }
+  },
+  resetLeaderboard: async () => {
+    // This would typically be an admin-only function
+    // For demo purposes, we'll just clear the local copy
+    set({ globalLeaderboard: [] });
+  }
 });
 
 // Type for the get and api functions
@@ -97,63 +126,34 @@ type StoreApi = {
 
 // Create the store with persistence middleware
 export const useGameStore = create<GameState>()(
-  (set: SetState, get: GetState, api: StoreApi) => ({
-    ...createBaseStore(set, get),
-    _hasHydrated: false,
-    _hasCheckedStorage: false,
-    addScore: (score: ScoreEntry) => {
-      // Skip during SSR and ensure hydration
-      if (typeof window === 'undefined') return;
-      createBaseStore(set, get).addScore(score);
-      
-      // Save to localStorage directly (fallback if middleware fails)
-      try {
-        const current = [...get().scores, score];
-        localStorage.setItem('funnel-game-storage', JSON.stringify({ 
-          state: { 
-            scores: current,
-            username: get().username,
-            globalLeaderboard: get().globalLeaderboard
-          } 
-        }));
+  persist(
+    (set: SetState, get: GetState, api: StoreApi) => ({
+      ...createBaseStore(set, get),
+      addScore: (score: ScoreEntry) => {
+        // Skip during SSR
+        if (typeof window === 'undefined') return;
+        
+        // Add score to local state
+        createBaseStore(set, get).addScore(score);
         
         // Update leaderboard whenever a new score is added
         get().updateLeaderboard();
-      } catch (e) {
-        console.warn('Failed to save to localStorage', e);
+      },
+      clearScores: () => {
+        createBaseStore(set, get).clearScores();
+      },
+      setUsername: (name: string) => {
+        if (typeof window === 'undefined') return;
+        createBaseStore(set, get).setUsername(name);
       }
-    },
-    clearScores: () => {
-      createBaseStore(set, get).clearScores();
-      
-      // Clear localStorage directly (fallback)
-      try {
-        localStorage.setItem('funnel-game-storage', JSON.stringify({ 
-          state: { 
-            scores: [],
-            username: get().username,
-            globalLeaderboard: get().globalLeaderboard
-          } 
-        }));
-      } catch (e) {
-        console.warn('Failed to clear localStorage', e);
-      }
-    },
-    setUsername: (name: string) => {
-      if (typeof window === 'undefined') return;
-      createBaseStore(set, get).setUsername(name);
-      
-      try {
-        localStorage.setItem('funnel-game-storage', JSON.stringify({
-          state: {
-            scores: get().scores,
-            username: name.slice(0, 10),
-            globalLeaderboard: get().globalLeaderboard
-          }
-        }));
-      } catch (e) {
-        console.warn('Failed to save username to localStorage', e);
-      }
+    }),
+    {
+      name: 'funnel-game-storage',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ 
+        scores: state.scores,
+        username: state.username 
+      }),
     }
-  })
+  )
 );

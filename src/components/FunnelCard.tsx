@@ -17,6 +17,8 @@ export default function FunnelCard() {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [showUsernamePrompt, setShowUsernamePrompt] = useState(false);
   const [tempUsername, setTempUsername] = useState('');
+  const [streak, setStreak] = useState(0);
+  const [showFlash, setShowFlash] = useState(false);
   
   // Get a random company from the data, avoiding recently used ones if possible
   const getRandomCompany = () => {
@@ -106,6 +108,15 @@ export default function FunnelCard() {
     const actual = currentCompany.conversion;
     const error = Math.abs(guess - actual);
     
+    // Update streak (under 10% error keeps streak)
+    setStreak(prev => (error <= 10 ? prev + 1 : 0));
+
+    // Perfect hit flash (<=1% error)
+    if (error <= 1) {
+      setShowFlash(true);
+      setTimeout(() => setShowFlash(false), 150);
+    }
+    
     setShowResult(true);
     
     // Add to score history
@@ -121,6 +132,13 @@ export default function FunnelCard() {
 
     // Trigger overlay to show updated overall score
     setShowScoreOverlay(true);
+
+    // Prepare shareable text card and copy to clipboard
+    try {
+      const bucket = error <= 5 ? "🟩" : error <= 10 ? "🟨" : "⬜";
+      const shareText = `GuessConversion ${scores.length + 1}\n${bucket}  Error: ${error.toFixed(1)}%`;
+      navigator.clipboard.writeText(shareText).catch(() => {});
+    } catch {}
   };
   
   // Handle username submission
@@ -142,7 +160,13 @@ export default function FunnelCard() {
   
   useEffect(() => {
     if (showScoreOverlay) {
-      const timer = setTimeout(() => setShowScoreOverlay(false), 1500); // fade after 1.5s
+      const timer = setTimeout(() => {
+        setShowScoreOverlay(false);
+        // Auto-advance core loop 0 friction
+        if (showResult) {
+          handleNext();
+        }
+      }, 1000); // overlay visible ~1s
       return () => clearTimeout(timer);
     }
   }, [showScoreOverlay]);
@@ -220,7 +244,7 @@ export default function FunnelCard() {
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <p className="font-medium text-lg text-gray-800">What's the percentage of users who:</p>
+                  <p className="font-medium text-lg text-gray-800">What is the % of:</p>
                 </div>
                 {
                   (() => {
@@ -268,9 +292,9 @@ export default function FunnelCard() {
               </div> */}
               {/* Slider input */}
               <div>
-                <label htmlFor="user-guess-slider" className="block text-sm font-medium text-gray-700 mb-1">
+                {/* <label htmlFor="user-guess-slider" className="block text-sm font-medium text-gray-700 mb-1">
                   Adjust with Slider
-                </label>
+                </label> */}
                 <div className="relative mb-2">
                   <div className="text-2xl font-bold text-center text-primary">{userGuess ? parseFloat(userGuess).toFixed(1) : "0.0"}%</div>
                 </div>
@@ -312,6 +336,28 @@ export default function FunnelCard() {
           onContinue={handleNext}
         />
       )}
+      {/* Tiny streak progress bar */}
+      <div className="fixed top-0 left-0 w-full h-1 bg-gray-200 z-40">
+        <div
+          className="h-full bg-primary transition-all duration-300"
+          style={{ width: `${Math.min(streak, 10) * 10}%` }}
+        />
+      </div>
+
+      {/* Perfect hit flash */}
+      <AnimatePresence>
+        {showFlash && (
+          <motion.div
+            key="flash"
+            className="fixed inset-0 bg-white z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.9 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Score overlay */}
       <AnimatePresence>
         {showScoreOverlay && (
