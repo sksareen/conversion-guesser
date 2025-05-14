@@ -83,11 +83,18 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
       });
       
       if (!response.ok) {
-        throw new Error('Failed to update leaderboard');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to update leaderboard:', errorData);
+        throw new Error(errorData.error || 'Failed to update leaderboard');
       }
       
       const data = await response.json();
-      set({ globalLeaderboard: data.leaderboard, isLoading: false });
+      // Handle case where leaderboard might not be in the expected format
+      const leaderboard = data.leaderboard || [];
+      set({ globalLeaderboard: leaderboard, isLoading: false });
+      
+      // Debug info
+      console.info(`Leaderboard updated for ${state.username} with ${state.scores.length} guesses`);
     } catch (error) {
       console.error('Error updating leaderboard:', error);
       set({ isLoading: false });
@@ -99,11 +106,20 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
     try {
       const response = await fetch('/api/leaderboard');
       if (!response.ok) {
-        throw new Error('Failed to fetch leaderboard');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to fetch leaderboard:', errorData);
+        throw new Error(errorData.error || 'Failed to fetch leaderboard');
       }
       
       const data = await response.json();
-      set({ globalLeaderboard: data.leaderboard, isLoading: false });
+      // Handle case where leaderboard might not be in the expected format
+      const leaderboard = data.leaderboard || [];
+      set({ globalLeaderboard: leaderboard, isLoading: false });
+      
+      // Log for debugging
+      if (leaderboard.length === 0) {
+        console.info('Leaderboard is empty');
+      }
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
       set({ isLoading: false });
@@ -136,8 +152,10 @@ export const useGameStore = create<GameState>()(
         // Add score to local state
         createBaseStore(set, get).addScore(score);
         
-        // Update leaderboard whenever a new score is added
-        get().updateLeaderboard();
+        // Add a slight delay before updating leaderboard to ensure state is updated
+        setTimeout(() => {
+          get().updateLeaderboard();
+        }, 100);
       },
       clearScores: () => {
         createBaseStore(set, get).clearScores();

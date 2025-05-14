@@ -50,7 +50,7 @@ export default function FunnelCard() {
     setUserGuess('');
     setShowResult(false);
     setGuessCount(prev => prev + 1);
-    console.log('setupNewQuestion');
+    
     
     // Focus the input after a short delay to allow rendering
     setTimeout(() => {
@@ -61,7 +61,7 @@ export default function FunnelCard() {
   // Handle initial load and keyboard shortcuts
   useEffect(() => {
     setupNewQuestion();
-    console.log('useEffect');
+    
     
     // Add keyboard shortcuts
     const handleKeydown = (e: KeyboardEvent) => {
@@ -172,7 +172,7 @@ export default function FunnelCard() {
   const handleNext = () => {
     setShowResult(false);
     setupNewQuestion();
-    console.log('next');
+  
   };
   
   // Focus input when component mounts
