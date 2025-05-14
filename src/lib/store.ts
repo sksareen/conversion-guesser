@@ -67,34 +67,51 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
     set({ isLoading: true });
     
     try {
-      // Send the leaderboard entry to the API
-      const response = await fetch('/api/leaderboard', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: state.username,
-          averageError,
-          totalGuesses: state.scores.length,
-          bestError,
-          performanceLevel
-        }),
-      });
+      // Since we're using static export, we'll simulate a leaderboard with local data
+      // Create a new leaderboard entry for the current user
+      const newEntry: LeaderboardEntry = {
+        id: Date.now().toString(),
+        username: state.username,
+        averageError: averageError,
+        totalGuesses: state.scores.length,
+        bestError: bestError,
+        performanceLevel: performanceLevel,
+        lastUpdated: Date.now()
+      };
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Failed to update leaderboard:', errorData);
-        throw new Error(errorData.error || 'Failed to update leaderboard');
+      // Get current leaderboard
+      const currentLeaderboard = [...get().globalLeaderboard];
+      
+      // Find if user already exists
+      const existingEntryIndex = currentLeaderboard.findIndex(entry => entry.username === state.username);
+      
+      if (existingEntryIndex >= 0) {
+        // Update existing entry
+        currentLeaderboard[existingEntryIndex] = newEntry;
+      } else {
+        // Add new entry
+        currentLeaderboard.push(newEntry);
       }
       
-      const data = await response.json();
-      // Handle case where leaderboard might not be in the expected format
-      const leaderboard = data.leaderboard || [];
-      set({ globalLeaderboard: leaderboard, isLoading: false });
+      // Sort by averageError (ascending)
+      currentLeaderboard.sort((a, b) => a.averageError - b.averageError);
       
-      // Debug info
-      console.info(`Leaderboard updated for ${state.username} with ${state.scores.length} guesses`);
+      // Limit to top 20
+      const limitedLeaderboard = currentLeaderboard.slice(0, 20);
+      
+      // Update the store
+      set({ globalLeaderboard: limitedLeaderboard, isLoading: false });
+      
+      // Store to localStorage for persistence
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('conversion-game-leaderboard', JSON.stringify(limitedLeaderboard));
+        } catch (e) {
+          console.error('Failed to save leaderboard to localStorage:', e);
+        }
+      }
+      
+      console.info(`Local leaderboard updated for ${state.username} with ${state.scores.length} guesses`);
     } catch (error) {
       console.error('Error updating leaderboard:', error);
       set({ isLoading: false });
@@ -104,19 +121,22 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
     set({ isLoading: true });
     
     try {
-      const response = await fetch('/api/leaderboard');
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Failed to fetch leaderboard:', errorData);
-        throw new Error(errorData.error || 'Failed to fetch leaderboard');
+      // Load leaderboard from localStorage
+      let leaderboard: LeaderboardEntry[] = [];
+      
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('conversion-game-leaderboard');
+          if (stored) {
+            leaderboard = JSON.parse(stored);
+          }
+        } catch (e) {
+          console.error('Failed to load leaderboard from localStorage:', e);
+        }
       }
       
-      const data = await response.json();
-      // Handle case where leaderboard might not be in the expected format
-      const leaderboard = data.leaderboard || [];
       set({ globalLeaderboard: leaderboard, isLoading: false });
       
-      // Log for debugging
       if (leaderboard.length === 0) {
         console.info('Leaderboard is empty');
       }
