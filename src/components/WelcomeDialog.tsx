@@ -31,11 +31,23 @@ export default function WelcomeDialog() {
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-primary">Welcome to Guess the Conversion!</h2>
               <p className="text-gray-600 mt-2">
-                Test your marketing knowledge by guessing the real conversion rates of well-known companies.
+                Test your marketing knowledge by guessing the <span className="font-medium">final conversion rates</span> of well-known companies.
               </p>
             </div>
 
             <div className="space-y-4 mb-6">
+              <div className="flex items-start">
+                <div className="bg-blue-100 p-2 rounded-full mr-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium">Key Conversion Points</h3>
+                  <p className="text-sm text-gray-600">Focus on the critical A → B final conversion steps in marketing funnels</p>
+                </div>
+              </div>
+              
               <div className="flex items-start">
                 <div className="bg-blue-100 p-2 rounded-full mr-3">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
@@ -55,20 +67,8 @@ export default function WelcomeDialog() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium">Get Sharper at Marketing</h3>
-                  <p className="text-sm text-gray-600">Improve your intuition for marketing metrics with each guess</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="bg-blue-100 p-2 rounded-full mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-medium">Keyboard Shortcuts</h3>
-                  <p className="text-sm text-gray-600">Press <kbd className="px-1 py-0.5 text-xs bg-gray-100 border rounded">N</kbd> for next question, <kbd className="px-1 py-0.5 text-xs bg-gray-100 border rounded">Esc</kbd> to skip</p>
+                  <h3 className="font-medium">Improve Your Marketing Intuition</h3>
+                  <p className="text-sm text-gray-600">Build a better feel for conversion benchmarks at each funnel stage</p>
                 </div>
               </div>
             </div>

@@ -86,7 +86,30 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
             </div>
             
             <h2 className="text-2xl font-bold mb-2 text-center">{company.company}</h2>
-            <p className="text-lg text-gray-600 mb-8 text-center">{company.funnel}</p>
+            
+            {(() => {
+              const parts = company.funnel.split(/\s+to\s+/i);
+              if (parts.length === 2) {
+                return (
+                  <div className="flex items-center text-lg mb-6">
+                    <div className="bg-gray-100 px-3 py-1 rounded-lg font-medium text-gray-700">
+                      {parts[0]}
+                    </div>
+                    <div className="mx-2 flex flex-col items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="bg-gray-100 px-3 py-1 rounded-lg font-medium text-gray-700">
+                      {parts[1]}
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <p className="text-lg text-gray-600 mb-6 text-center">{company.funnel}</p>
+              );
+            })()}
             
             <div className="flex flex-col items-center mb-10 w-full">
               <div className="text-7xl mb-4">{feedback.bucket}</div>

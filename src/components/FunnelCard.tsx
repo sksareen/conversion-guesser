@@ -186,14 +186,14 @@ export default function FunnelCard() {
     <>
       {!showResult ? (
         <motion.div 
-          className="flex flex-col items-center py-12"
+          className="flex flex-col items-center py-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           key={`guess-${guessCount}`}
         >
-          <div className="flex flex-col items-center mb-12">
-            <div className="relative w-32 h-32 mb-6">
+          <div className="flex flex-col items-center mb-6">
+            <div className="relative w-20 h-20 mb-6">
               <Image
                 src={currentCompany.logo || '/favicon.svg'}
                 alt={currentCompany.company}
@@ -210,19 +210,42 @@ export default function FunnelCard() {
 
             <h2 className="text-2xl font-bold mb-4 text-center">{currentCompany.company}</h2>
             
-            <div className="text-center mb-8">
+            <div className="text-center mb-2">
               {
                 (() => {
                   const parts = currentCompany.funnel.split(/\s+to\s+/i);
                   if (parts.length === 2) {
                     return (
-                      <p className="text-xl font-medium text-gray-800">
-                        {parts[0]} <span className="text-gray-600">to</span> {parts[1]}?
-                      </p>
+                      <div className="flex flex-col items-center">
+                        <div className="flex items-center mb-2">
+                          <span className="font-semibold text-lg text-gray-700">What % converts from:</span>
+                        </div>
+                        <div className="flex items-center text-xl relative py-2">
+                          <div className="bg-gray-100 px-4 py-2 rounded-lg font-bold text-primary">
+                            {parts[0]}
+                          </div>
+                          <div className="mx-3 flex flex-col items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                            {/* <span className="text-xs text-gray-500 mt-0.5">FINAL STEP</span> */}
+                          </div>
+                          <div className="bg-gray-100 px-4 py-2 rounded-lg font-bold text-primary">
+                            {parts[1]}
+                          </div>
+                        </div>
+                      </div>
                     );
                   }
                   return (
-                    <p className="text-xl font-medium text-gray-800">{currentCompany.funnel}?</p>
+                    <div className="flex flex-col items-center">
+                      <div className="flex items-center mb-2">
+                        <span className="font-semibold text-lg text-gray-700">Final conversion rate:</span>
+                      </div>
+                      <div className="bg-gray-100 px-4 py-2 rounded-lg text-xl font-bold text-primary">
+                        {currentCompany.funnel}
+                      </div>
+                    </div>
                   );
                 })()
               }
@@ -230,7 +253,7 @@ export default function FunnelCard() {
           </div>
           
           <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col items-center">
-            <div className="mb-8 flex flex-col items-center">
+            <div className="mb-8 flex flex-row items-center justify-center gap-2">
               <input
                 ref={inputRef}
                 type="number"
@@ -239,12 +262,12 @@ export default function FunnelCard() {
                 step="0.1"
                 value={userGuess}
                 onChange={(e) => setUserGuess(e.target.value)}
-                className="w-full text-center text-6xl font-bold text-primary py-2 focus:outline-none bg-transparent border-b-2 border-gray-200"
+                className="w-32 text-center text-6xl font-bold text-primary py-2 focus:outline-none bg-transparent border-b-2 border-gray-200"
                 placeholder="0.0"
                 required
                 autoFocus
               />
-              <span className="text-3xl text-gray-400 mt-2">%</span>
+              <span className="text-3xl text-gray-400">%</span>
             </div>
             
             <button 
