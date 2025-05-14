@@ -15,10 +15,11 @@ The code has been successfully pushed to the GitHub repository: https://github.c
 4. Configure the project:
    - **Framework Preset**: Select "Next.js"
    - **Root Directory**: Keep as `.`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `out`
+   - **Build Command**: `next build`
    - **Install Command**: `npm install`
-   - **Development Command**: `npm run dev`
+   - **Development Command**: `next dev`
+   
+   Note: Do NOT set an output directory as we are using API routes now.
 
 5. Click "Deploy"
 
@@ -49,7 +50,7 @@ To add a custom domain:
 
 ## Sharing Your Project
 
-Once deployed, you can share the Vercel URL with others to let them play the game. The game is fully static and doesn't require any backend services.
+Once deployed, you can share the Vercel URL with others to let them play the game. The game uses Supabase for the leaderboard functionality, which requires server-side API routes to be enabled.
 
 ## Local Testing
 
@@ -57,6 +58,7 @@ To test the build locally before deployment:
 
 ```bash
 npm run build
+npm run start
 ```
 
-This will create a static export in the `out` directory that you can serve with any static file server.
+This will create a server-side rendered application that includes API routes for the leaderboard functionality. You can access it at http://localhost:3000.
