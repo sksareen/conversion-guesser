@@ -1,0 +1,29 @@
+| #  | Company                        | Step Before → Step After             | Conversion Rate               | Funnel Type       | Source            |
+| -- | ------------------------------ | ------------------------------------ | ----------------------------- | ----------------- | ----------------- |
+| 1  | Slack                          | Freemium MAU → Paid seats            | **30 %**                      | B2B SaaS freemium |                   |
+| 2  | Netflix                        | 30-day trial → Paid sub              | **93 %**                      | B2C subscription  |                   |
+| 3  | Vimeo                          | Trial → Paid plan                    | **60 %**                      | B2B video SaaS    |                   |
+| 4  | Dropbox                        | 700 M regs → 18.22 M payers          | **2.6 %** (calc)              | B2C/B2B freemium  |                   |
+| 5  | Spotify                        | MAU → Premium                        | **42 %**                      | B2C freemium      |                   |
+| 6  | Canva                          | 175 M users → 16 M payers            | **9 %** (calc)                | Prosumer SaaS     |                   |
+| 7  | Duolingo                       | MAU → Super paid                     | \*\* ≈ 8 %\*\*                | B2C freemium      |                   |
+| 8  | Bumble                         | App users → Paid                     | **4.6 %**                     | B2C freemium      |                   |
+| 9  | Tinder                         | 60 M MAU → 9.6 M payers              | **16 %** (calc)               | B2C freemium      |                   |
+| 10 | Amazon Prime                   | Trial → Paid sub                     | **74 %**                      | B2C subscription  |                   |
+| 11 | Amazon (non-Prime)             | Visit → Purchase                     | **13 %**                      | E-commerce        |                   |
+| 12 | Calm                           | 100 M DLs → 4 M subs                 | **4 %** (calc)                | Mobile-B2C health |                   |
+| 13 | Headspace                      | 80 M DLs → 2.8 M subs                | **3.5 %** (calc)              | Mobile-B2C health |                   |
+| 14 | Coinbase One                   | MTU → Paid sub                       | **5 %**                       | FinTech upsell    |                   |
+| 15 | Strava                         | Registered → Paid                    | **2 %**                       | Mobile fitness    |                   |
+| 16 | Notion                         | 30 M+ users → 4 M payers             | **13 %**                      | B2B/B2C SaaS      |                   |
+| 17 | Salesforce (US avg)            | Lead → Opportunity                   | **6.2 %**                     | B2B funnel        |                   |
+| 18 | Zoom Webinars                  | Registrant → Attendee                | **55 %**                      | Event conversion  |                   |
+| 19 | Grammarly                      | Free → Premium                       | **20 – 30 %** (mid-pt ≈ 25 %) | Prosumer SaaS     | ([medium.com][1]) |
+| 20 | Apple App Store                | Listing view → Install (US, H1 2024) | **25 %**                      | Mobile-store CVR  |                   |
+| 21 | Photo & Video apps (App Store) | Listing → Install                    | **60.8 %**                    | Category CVR      |                   |
+| 22 | Chargebee                      | Trial → Paid                         | **15 %**                      | B2B SaaS billing  |                   |
+| 23 | AppTweak (nav)                 | Navigation-category CVR              | **115 %**†                    | Store CVR         |                   |
+| 24 | Photo & Video (Google Play)    | Listing → Install                    | **70.5 %**                    | Store CVR         |                   |
+| 25 | UXCam benchmark                | Retail app install → Purchase        | **1.38 %**                    | Mobile retail     |                   |
+
+[1]: https://medium.com/better-marketing/deconstructing-a-20-sale-conversion-rate-12d3907de7e8 "Deconstructing a 20% Sale Conversion Rate | Better Marketing"
