@@ -20,6 +20,7 @@ interface CompanyRevealProps {
 
 export default function CompanyReveal({ company, guess, onContinue }: CompanyRevealProps) {
   const [revealStage, setRevealStage] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const errorMargin = Math.abs(guess - company.conversion);
 
   // Skip automatic progression after the first stage to show company name right away
@@ -44,6 +45,16 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
   };
 
   const feedback = getFeedback();
+  
+  // Handle the next question with debounce to prevent double transitions
+  const handleNextQuestion = () => {
+    if (isTransitioning) return;
+    
+    setIsTransitioning(true);
+    onContinue();
+    // Reset after transition completes
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
   
   return (
     <div className="flex flex-col items-center py-12">
@@ -80,6 +91,30 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
                 onError={(e) => {
                   // @ts-ignore
                   e.currentTarget.onerror = null;
+                  
+                  // Try alternate extensions if the original path fails
+                  const originalSrc = e.currentTarget.src;
+                  const pathWithoutExtension = originalSrc.substring(0, originalSrc.lastIndexOf('.'));
+                  
+                  // Try PNG
+                  if (!originalSrc.endsWith('.png')) {
+                    e.currentTarget.src = `${pathWithoutExtension}.png`;
+                    return;
+                  }
+                  
+                  // Try JPG
+                  if (!originalSrc.endsWith('.jpg')) {
+                    e.currentTarget.src = `${pathWithoutExtension}.jpg`;
+                    return;
+                  }
+                  
+                  // Try SVG as last resort
+                  if (!originalSrc.endsWith('.svg')) {
+                    e.currentTarget.src = `${pathWithoutExtension}.svg`;
+                    return;
+                  }
+                  
+                  // Fallback to favicon if all else fails
                   e.currentTarget.src = '/favicon.svg';
                 }}
               />
@@ -137,7 +172,8 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-3/4 py-3 px-4 text-lg font-medium rounded-lg text-white bg-primary flex items-center justify-center"
-              onClick={onContinue}
+              onClick={handleNextQuestion}
+              disabled={isTransitioning}
             >
               <span className="flex-1 text-center">Next Question</span>
               <kbd className="ml-2 px-2 py-1 text-xs bg-white bg-opacity-20 rounded">N</kbd>

@@ -4,8 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/lib/store';
 import CompanyReveal from './CompanyReveal';
-import companies from '@/data/companies.json';
+import companiesData from '@/data/companies.json';
 import Image from 'next/image';
+
+// Flatten the companies array from all categories
+const companies = companiesData.categories.flatMap(category => category.companies);
 
 export default function FunnelCard() {
   const [currentCompany, setCurrentCompany] = useState<any>(null);
@@ -60,19 +63,19 @@ export default function FunnelCard() {
     
     // Add keyboard shortcuts
     const handleKeydown = (e: KeyboardEvent) => {
-      // Press 'n' to go to next question when in result view
-      if (e.key === 'n' && showResult) {
+      // Press 'n' to go to next question when in result view and not during transitions
+      if (e.key === 'n' && showResult && !showScoreOverlay) {
         handleNext();
       }
-      // Press Escape to skip current question
-      else if (e.key === 'Escape' && !showResult) {
+      // Press Escape to skip current question when not showing result or overlay
+      else if (e.key === 'Escape' && !showResult && !showScoreOverlay) {
         setupNewQuestion();
       }
     };
     
     window.addEventListener('keydown', handleKeydown);
     return () => window.removeEventListener('keydown', handleKeydown);
-  }, [showResult]);
+  }, [showResult, showScoreOverlay]);
   
   // Show welcome message for first-time users
   useEffect(() => {
@@ -121,8 +124,6 @@ export default function FunnelCard() {
       setTimeout(() => setShowFlash(false), 150);
     }
     
-    setShowResult(true);
-    
     // Add to score history
     const newScore = {
       id: Date.now().toString(),
@@ -134,8 +135,16 @@ export default function FunnelCard() {
     };
     addScore(newScore);
 
-    // Trigger overlay to show updated overall score
+    // First show the score overlay
     setShowScoreOverlay(true);
+    
+    // After the overlay is shown for a bit, show the reveal
+    setTimeout(() => {
+      // Hide the overlay
+      setShowScoreOverlay(false);
+      // Then show the result
+      setShowResult(true);
+    }, 1500);
 
     // Prepare shareable text card and copy to clipboard
     try {
@@ -159,21 +168,9 @@ export default function FunnelCard() {
   
   // Next question handler
   const handleNext = () => {
+    setShowResult(false);
     setupNewQuestion();
   };
-  
-  useEffect(() => {
-    if (showScoreOverlay) {
-      const timer = setTimeout(() => {
-        setShowScoreOverlay(false);
-        // Auto-advance core loop 0 friction
-        if (showResult) {
-          handleNext();
-        }
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [showScoreOverlay]);
   
   // Focus input when component mounts
   useEffect(() => {
@@ -193,9 +190,9 @@ export default function FunnelCard() {
           key={`guess-${guessCount}`}
         >
           <div className="flex flex-col items-center mb-6">
-            <div className="relative w-20 h-20 mb-6">
+            <div className="relative w-32 h-32 mb-6">
               <Image
-                src={currentCompany.logo || '/favicon.svg'}
+                src={`${currentCompany.logo}.png` || '/favicon.svg'}
                 alt={currentCompany.company}
                 width={128}
                 height={128}
@@ -203,6 +200,24 @@ export default function FunnelCard() {
                 onError={(e) => {
                   // @ts-ignore
                   e.currentTarget.onerror = null;
+                  
+                  // Try alternate extensions if the original path fails
+                  const originalSrc = e.currentTarget.src;
+                  const pathWithoutExtension = originalSrc.substring(0, originalSrc.lastIndexOf('.'));
+                  
+                  // Try JPG
+                  if (!originalSrc.endsWith('.jpg')) {
+                    e.currentTarget.src = `${pathWithoutExtension}.jpg`;
+                    return;
+                  }
+                  
+                  // Try SVG as last resort
+                  if (!originalSrc.endsWith('.svg')) {
+                    e.currentTarget.src = `${pathWithoutExtension}.svg`;
+                    return;
+                  }
+                  
+                  // Fallback to favicon if all else fails
                   e.currentTarget.src = '/favicon.svg';
                 }}
               />

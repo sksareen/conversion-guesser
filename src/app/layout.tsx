@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   title: 'Guess the Conversion',
   description: 'A game to guess conversion funnel percentages',
   viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
+  icons: {
+    icon: '/favicon.png',
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
