@@ -72,7 +72,7 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
     
     onContinue();
     // Reset after transition completes
-    setTimeout(() => setIsTransitioning(false), 300);
+    setTimeout(() => setIsTransitioning(false), 200);
   };
   
   return (

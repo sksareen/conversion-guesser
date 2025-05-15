@@ -173,7 +173,7 @@ export default function FunnelCard() {
       setShowScoreOverlay(false);
       // Go directly to the next question instead of showing result
       setupNewQuestion();
-    }, 3500); // Allow a bit more time to see the score before moving on
+    }, 1900); // Allow a bit more time to see the score before moving on
 
     // Prepare shareable text card and copy to clipboard
     try {
