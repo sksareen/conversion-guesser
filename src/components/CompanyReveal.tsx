@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import { trackEvent } from '@/lib/posthog';
+import { useGameStore } from '@/lib/store';
 
 interface CompanyRevealProps {
   company: {
@@ -22,6 +24,7 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
   const [revealStage, setRevealStage] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const errorMargin = Math.abs(guess - company.conversion);
+  const { totalPoints, lastPoints } = useGameStore();
 
   // Skip automatic progression after the first stage to show company name right away
   useEffect(() => {
@@ -29,11 +32,21 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
     if (revealStage === 0) {
       const timer = setTimeout(() => {
         setRevealStage(1);
+        
+        // Track reveal stage transition
+        trackEvent('company_revealed', {
+          company: company.company,
+          guess: guess,
+          actual: company.conversion,
+          errorMargin: errorMargin,
+          feedback: getFeedback().text,
+          pointsEarned: lastPoints
+        });
       }, 800);
       
       return () => clearTimeout(timer);
     }
-  }, [revealStage]);
+  }, [revealStage, company, guess, errorMargin, lastPoints]);
 
   // Get feedback based on error margin
   const getFeedback = () => {
@@ -51,6 +64,12 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
     if (isTransitioning) return;
     
     setIsTransitioning(true);
+    
+    // Track next question click
+    trackEvent('next_question_clicked', {
+      fromCompany: company.company
+    });
+    
     onContinue();
     // Reset after transition completes
     setTimeout(() => setIsTransitioning(false), 300);
@@ -83,7 +102,7 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
           >
             <div className="relative w-32 h-32 mb-6">
               <Image
-                src={company.logo || "/favicon.svg"}
+                src={`/logos/${company.logo}`}
                 alt={company.company}
                 width={128}
                 height={128}
@@ -94,28 +113,32 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
                   
                   // Try alternate extensions if the original path fails
                   const originalSrc = e.currentTarget.src;
-                  const pathWithoutExtension = originalSrc.substring(0, originalSrc.lastIndexOf('.'));
+                  const basePath = `/logos/${company.logo}`;
                   
-                  // Try PNG
-                  if (!originalSrc.endsWith('.png')) {
-                    e.currentTarget.src = `${pathWithoutExtension}.png`;
+                  // Try different extensions
+                  if (!originalSrc.includes('.jpg')) {
+                    e.currentTarget.src = `${basePath}.jpg`;
                     return;
                   }
                   
-                  // Try JPG
-                  if (!originalSrc.endsWith('.jpg')) {
-                    e.currentTarget.src = `${pathWithoutExtension}.jpg`;
+                  if (!originalSrc.includes('.png')) {
+                    e.currentTarget.src = `${basePath}.png`;
                     return;
                   }
                   
-                  // Try SVG as last resort
-                  if (!originalSrc.endsWith('.svg')) {
-                    e.currentTarget.src = `${pathWithoutExtension}.svg`;
+                  if (!originalSrc.includes('.svg')) {
+                    e.currentTarget.src = `${basePath}.svg`;
                     return;
                   }
                   
                   // Fallback to favicon if all else fails
-                  e.currentTarget.src = '/favicon.svg';
+                  e.currentTarget.src = '/favicon.png';
+                  
+                  // Track image error
+                  trackEvent('logo_load_error', {
+                    company: company.company,
+                    originalSrc
+                  });
                 }}
               />
             </div>
@@ -146,10 +169,10 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
               );
             })()}
             
-            <div className="flex flex-col items-center mb-10 w-full">
-              <div className="text-7xl mb-4">{feedback.bucket}</div>
+            <div className="flex flex-col items-center w-full mb-10">
+              <div className="text-5xl mb-4">{feedback.bucket}</div>
               
-              <div className="flex justify-between w-full mb-6">
+              <div className="grid grid-cols-2 gap-4 w-full mb-5">
                 <div className="text-center">
                   <p className="text-sm text-gray-500">Your guess</p>
                   <p className="text-3xl font-bold">{guess.toFixed(1)}%</p>
@@ -160,11 +183,27 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
                 </div>
               </div>
               
-              <p className={`text-2xl font-medium ${feedback.color} mb-2`}>
+              <div className="w-full mb-4">
+                <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg mb-3">
+                  <span className="font-semibold">Error</span>
+                  <span className={`text-xl font-bold ${feedback.color}`}>
+                    {errorMargin.toFixed(1)}%
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center bg-primary bg-opacity-10 p-3 rounded-lg">
+                  <span className="font-semibold">Points earned</span>
+                  <span className="text-xl font-bold text-primary">+{lastPoints} pts</span>
+                </div>
+              </div>
+              
+              <div className="w-full text-center p-3 bg-gray-100 rounded-lg mb-6">
+                <p className="text-sm text-gray-500 mb-1">TOTAL SCORE</p>
+                <p className="text-2xl font-bold">{totalPoints} points</p>
+              </div>
+              
+              <p className={`text-xl font-medium ${feedback.color} mb-1`}>
                 {feedback.emoji} {feedback.text}
-              </p>
-              <p className="text-lg font-medium">
-                {errorMargin.toFixed(1)}% error
               </p>
             </div>
             

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/lib/store';
+import { trackEvent } from '@/lib/posthog';
 
 export default function ScoreTable() {
   const { scores, clearScores, username, setUsername, globalLeaderboard, fetchLeaderboard, isLoading } = useGameStore();
@@ -24,6 +25,7 @@ export default function ScoreTable() {
   useEffect(() => {
     if (activeTab === 'leaderboard') {
       fetchLeaderboard();
+      trackEvent('view_leaderboard');
     }
   }, [activeTab, fetchLeaderboard]);
   
@@ -44,7 +46,14 @@ export default function ScoreTable() {
 
   const handleSaveUsername = () => {
     if (tempUsername.trim()) {
-      setUsername(tempUsername.trim());
+      const newUsername = tempUsername.trim();
+      setUsername(newUsername);
+      
+      // Track username change
+      trackEvent('username_changed', {
+        oldUsername: username,
+        newUsername: newUsername
+      });
     }
     setIsEditingName(false);
   };
@@ -53,6 +62,39 @@ export default function ScoreTable() {
     setTempUsername(username);
     setIsEditingName(true);
     setTimeout(() => inputRef.current?.focus(), 50);
+    
+    // Track edit username action
+    trackEvent('edit_username_started');
+  };
+  
+  const handleToggleScorePanel = () => {
+    const newState = !isOpen;
+    setIsOpen(newState);
+    
+    // Track panel toggle
+    trackEvent('score_panel_toggled', {
+      isOpen: newState
+    });
+  };
+  
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    
+    // Track tab change
+    trackEvent('score_tab_changed', {
+      tab: tab
+    });
+  };
+  
+  const handleClearScores = () => {
+    // Track before clearing
+    trackEvent('scores_cleared', {
+      scoreCount: scores.length,
+      averageError: averageError,
+      performanceLevel: performance.text
+    });
+    
+    clearScores();
   };
   
   return (
@@ -64,7 +106,7 @@ export default function ScoreTable() {
     >
       {/* Collapsible header */}
       <button 
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggleScorePanel}
         className="w-full p-5 text-left flex justify-between items-center border-b border-gray-200 bg-white hover:bg-gray-50 transition-colors"
       >
         <div className="flex items-center">
@@ -139,7 +181,7 @@ export default function ScoreTable() {
                 </div>
                 
                 <button 
-                  onClick={clearScores} 
+                  onClick={handleClearScores} 
                   className="text-sm text-gray-500 hover:text-red-500"
                 >
                   Reset History
@@ -150,13 +192,13 @@ export default function ScoreTable() {
               <div className="flex border-b border-gray-200 mb-6">
                 <button
                   className={`px-4 py-2 text-sm font-medium ${activeTab === 'personal' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700'}`}
-                  onClick={() => setActiveTab('personal')}
+                  onClick={() => handleTabChange('personal')}
                 >
                   Your Stats
                 </button>
                 <button
                   className={`px-4 py-2 text-sm font-medium ${activeTab === 'leaderboard' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700'}`}
-                  onClick={() => setActiveTab('leaderboard')}
+                  onClick={() => handleTabChange('leaderboard')}
                 >
                   Leaderboard
                 </button>

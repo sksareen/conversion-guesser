@@ -9,6 +9,7 @@ export interface ScoreEntry {
   guess: number;
   actual: number;
   error: number;
+  points: number; // Points earned for this guess
 }
 
 export interface LeaderboardEntry {
@@ -17,6 +18,7 @@ export interface LeaderboardEntry {
   averageError: number;
   totalGuesses: number;
   bestError: number;
+  totalPoints: number; // Total points for leaderboard
   performanceLevel: string;
   lastUpdated: number;
 }
@@ -25,12 +27,15 @@ interface GameState {
   scores: ScoreEntry[];
   username: string;
   globalLeaderboard: LeaderboardEntry[];
-  addScore: (score: ScoreEntry) => void;
+  totalPoints: number; // Track total points
+  lastPoints: number; // Points from last guess
+  addScore: (score: Omit<ScoreEntry, 'points'>) => void;
   clearScores: () => void;
   setUsername: (name: string) => void;
   updateLeaderboard: () => Promise<void>;
   fetchLeaderboard: () => Promise<void>;
   resetLeaderboard: () => Promise<void>;
+  calculatePoints: (error: number) => number; // Helper to calculate points
   isLoading: boolean;
 }
 
@@ -45,12 +50,43 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
   scores: [],
   username: 'Anonymous',
   globalLeaderboard: [],
+  totalPoints: 0,
+  lastPoints: 0,
   isLoading: false,
-  addScore: (score: ScoreEntry) => set((state: GameState) => ({ 
-    scores: [...state.scores, score]
-  })),
-  clearScores: () => set({ scores: [] }),
+  
+  // Calculate points based on error
+  calculatePoints: (error: number) => {
+    // Perfect guess (≤ 1% error): 100 points
+    if (error <= 1) return 100;
+    // Very close (≤ 3% error): 75 points
+    if (error <= 3) return 75;
+    // Good guess (≤ 5% error): 50 points
+    if (error <= 5) return 50;
+    // Decent guess (≤ 10% error): 25 points
+    if (error <= 10) return 25;
+    // OK guess (≤ 15% error): 10 points
+    if (error <= 15) return 10;
+    // Poor guess (≤ 20% error): 5 points
+    if (error <= 20) return 5;
+    // Bad guess (> 20% error): 1 point for trying
+    return 1;
+  },
+  
+  addScore: (scoreData) => {
+    const points = get().calculatePoints(scoreData.error);
+    const score = { ...scoreData, points };
+    
+    set((state: GameState) => ({ 
+      scores: [...state.scores, score],
+      totalPoints: state.totalPoints + points,
+      lastPoints: points
+    }));
+  },
+  
+  clearScores: () => set({ scores: [], totalPoints: 0, lastPoints: 0 }),
+  
   setUsername: (name: string) => set({ username: name.slice(0, 10) }), // Limit to 10 chars
+  
   updateLeaderboard: async () => {
     const state = get();
     if (state.scores.length === 0) return;
@@ -78,6 +114,7 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
           averageError,
           totalGuesses: state.scores.length,
           bestError,
+          totalPoints: state.totalPoints,
           performanceLevel
         }),
       });
@@ -100,6 +137,7 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
       set({ isLoading: false });
     }
   },
+  
   fetchLeaderboard: async () => {
     set({ isLoading: true });
     
@@ -125,6 +163,7 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
       set({ isLoading: false });
     }
   },
+  
   resetLeaderboard: async () => {
     // This would typically be an admin-only function
     // For demo purposes, we'll just clear the local copy
@@ -145,7 +184,7 @@ export const useGameStore = create<GameState>()(
   persist(
     (set: SetState, get: GetState, api: StoreApi) => ({
       ...createBaseStore(set, get),
-      addScore: (score: ScoreEntry) => {
+      addScore: (score) => {
         // Skip during SSR
         if (typeof window === 'undefined') return;
         
@@ -170,7 +209,9 @@ export const useGameStore = create<GameState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ 
         scores: state.scores,
-        username: state.username 
+        username: state.username,
+        totalPoints: state.totalPoints,
+        lastPoints: state.lastPoints
       }),
     }
   )

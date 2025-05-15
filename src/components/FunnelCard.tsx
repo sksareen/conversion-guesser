@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/lib/store';
 import CompanyReveal from './CompanyReveal';
 import companiesData from '@/data/companies.json';
 import Image from 'next/image';
+import { trackEvent } from '@/lib/posthog';
 
 // Flatten the companies array from all categories
 const companies = companiesData.categories.flatMap(category => category.companies);
@@ -15,7 +16,7 @@ export default function FunnelCard() {
   const [userGuess, setUserGuess] = useState<string>('');
   const [showResult, setShowResult] = useState(false);
   const [guessCount, setGuessCount] = useState(0);
-  const { addScore, scores, username, setUsername } = useGameStore();
+  const { addScore, scores, username, setUsername, totalPoints, lastPoints } = useGameStore();
   const [showScoreOverlay, setShowScoreOverlay] = useState(false);
   const [showUsernamePrompt, setShowUsernamePrompt] = useState(false);
   const [tempUsername, setTempUsername] = useState('');
@@ -44,26 +45,34 @@ export default function FunnelCard() {
     return randomCompany;
   };
   
-  // Setup new question
-  const setupNewQuestion = () => {
-    setCurrentCompany(getRandomCompany());
+  // Memoize the setupNewQuestion function to avoid recreating it on each render
+  const setupNewQuestion = useCallback(() => {
+    const company = getRandomCompany();
+    setCurrentCompany(company);
     setUserGuess('');
     setShowResult(false);
     setGuessCount(prev => prev + 1);
     
+    // Track new question event
+    trackEvent('new_question', {
+      company: company.company,
+      funnel: company.funnel,
+      questionNumber: guessCount + 1
+    });
     
     // Focus the input after a short delay to allow rendering
     setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
-  };
+  }, [guessCount, getRandomCompany, trackEvent]);
   
-  // Handle initial load and keyboard shortcuts
+  // Handle initial load only
   useEffect(() => {
     setupNewQuestion();
-    
-    
-    // Add keyboard shortcuts
+  }, []);
+  
+  // Handle keyboard shortcuts
+  useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
       // Press 'n' to go to next question when in result view and not during transitions
       if (e.key === 'n' && showResult && !showScoreOverlay) {
@@ -71,19 +80,24 @@ export default function FunnelCard() {
       }
       // Press Escape to skip current question when not showing result or overlay
       else if (e.key === 'Escape' && !showResult && !showScoreOverlay) {
+        trackEvent('question_skipped', {
+          company: currentCompany?.company,
+          questionNumber: guessCount
+        });
         setupNewQuestion();
       }
     };
     
     window.addEventListener('keydown', handleKeydown);
     return () => window.removeEventListener('keydown', handleKeydown);
-  }, [showResult, showScoreOverlay]);
+  }, [showResult, showScoreOverlay, currentCompany, guessCount, setupNewQuestion]);
   
   // Show welcome message for first-time users
   useEffect(() => {
     const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
     if (!hasVisitedBefore) {
       localStorage.setItem('hasVisitedBefore', 'true');
+      trackEvent('first_visit');
     }
   }, []);
   
@@ -118,7 +132,8 @@ export default function FunnelCard() {
     const error = Math.abs(guess - actual);
     
     // Update streak (under 10% error keeps streak)
-    setStreak(prev => (error <= 10 ? prev + 1 : 0));
+    const newStreak = error <= 10 ? streak + 1 : 0;
+    setStreak(newStreak);
 
     // Perfect hit flash (<=1% error)
     if (error <= 1) {
@@ -137,6 +152,18 @@ export default function FunnelCard() {
     };
     addScore(newScore);
 
+    // Track guess event
+    trackEvent('guess_submitted', {
+      company: currentCompany.company,
+      funnel: currentCompany.funnel,
+      guess,
+      actual,
+      error,
+      streak: newStreak,
+      guessNumber: scores.length + 1,
+      username
+    });
+
     // First show the score overlay
     setShowScoreOverlay(true);
     
@@ -153,6 +180,10 @@ export default function FunnelCard() {
       const bucket = error <= 5 ? "🟩" : error <= 10 ? "🟨" : "⬜";
       const shareText = `GuessConversion ${scores.length + 1}\n${bucket}  Error: ${error.toFixed(1)}%`;
       navigator.clipboard.writeText(shareText).catch(() => {});
+      
+      trackEvent('share_text_copied', {
+        shareText
+      });
     } catch {}
   };
   
@@ -162,6 +193,11 @@ export default function FunnelCard() {
     
     if (tempUsername.trim()) {
       setUsername(tempUsername.trim());
+      
+      // Track username set event
+      trackEvent('username_set', {
+        username: tempUsername.trim()
+      });
     }
     
     setShowUsernamePrompt(false);
@@ -172,7 +208,6 @@ export default function FunnelCard() {
   const handleNext = () => {
     setShowResult(false);
     setupNewQuestion();
-  
   };
   
   // Focus input when component mounts
@@ -195,7 +230,7 @@ export default function FunnelCard() {
           <div className="flex flex-col items-center mb-6">
             <div className="relative w-32 h-32 mb-6">
               <Image
-                src={`${currentCompany.logo}.png` || '/favicon.svg'}
+                src={`/logos/${currentCompany.logo}`}
                 alt={currentCompany.company}
                 width={128}
                 height={128}
@@ -206,22 +241,28 @@ export default function FunnelCard() {
                   
                   // Try alternate extensions if the original path fails
                   const originalSrc = e.currentTarget.src;
-                  const pathWithoutExtension = originalSrc.substring(0, originalSrc.lastIndexOf('.'));
+                  const basePath = `/logos/${currentCompany.logo}`;
                   
-                  // Try JPG
-                  if (!originalSrc.endsWith('.jpg')) {
-                    e.currentTarget.src = `${pathWithoutExtension}.jpg`;
+                  // Try JPG if not already
+                  if (!originalSrc.includes('.jpg')) {
+                    e.currentTarget.src = `${basePath}.jpg`;
+                    return;
+                  }
+                  
+                  // Try PNG if not already
+                  if (!originalSrc.includes('.png')) {
+                    e.currentTarget.src = `${basePath}.png`;
                     return;
                   }
                   
                   // Try SVG as last resort
-                  if (!originalSrc.endsWith('.svg')) {
-                    e.currentTarget.src = `${pathWithoutExtension}.svg`;
+                  if (!originalSrc.includes('.svg')) {
+                    e.currentTarget.src = `${basePath}.svg`;
                     return;
                   }
                   
                   // Fallback to favicon if all else fails
-                  e.currentTarget.src = '/favicon.svg';
+                  e.currentTarget.src = '/favicon.png';
                 }}
               />
             </div>
@@ -358,20 +399,54 @@ export default function FunnelCard() {
                   const averageError = scores.length > 0 ? scores.reduce((sum, s) => sum + s.error, 0) / scores.length : 0;
                   const accuracyScore = Math.max(0, 100 - (averageError * 3));
                   const lastScore = scores.length > 0 ? scores[scores.length - 1] : null;
+                  
+                  let feedback = { emoji: '🤔', text: 'Try again', color: 'text-red-600', bucket: '⬜' };
+                  
+                  if (lastScore) {
+                    if (lastScore.error <= 2) feedback = { emoji: '🎯', text: 'Perfect!', color: 'text-green-600', bucket: '🟩' };
+                    else if (lastScore.error <= 5) feedback = { emoji: '✨', text: 'Excellent!', color: 'text-green-600', bucket: '🟩' };
+                    else if (lastScore.error <= 10) feedback = { emoji: '👍', text: 'Good!', color: 'text-yellow-600', bucket: '🟨' };
+                    else if (lastScore.error <= 15) feedback = { emoji: '😊', text: 'Not bad', color: 'text-yellow-500', bucket: '🟨' };
+                  }
+                  
                   return (
                     <>
                       {lastScore && (
                         <div className="mb-4">
-                          <div className={`text-5xl font-black mb-2 ${
-                            lastScore.error <= 5 ? 'text-green-600' : 
-                            lastScore.error <= 15 ? 'text-yellow-600' : 
-                            'text-red-600'
-                          }`}>
-                            {lastScore.error <= 5 ? "🟩" : lastScore.error <= 15 ? "🟨" : "⬜"}
+                          <div className={`text-5xl font-black mb-3 ${feedback.color}`}>
+                            {feedback.emoji} {feedback.text}
                           </div>
-                          <p className="text-lg font-medium">
-                            {lastScore.error.toFixed(1)}% error
-                          </p>
+                          
+                          <div className="grid grid-cols-2 gap-4 mb-3">
+                            <div className="text-center">
+                              <p className="text-sm text-gray-500">Your guess</p>
+                              <p className="text-2xl font-bold">{lastScore.guess.toFixed(1)}%</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-sm text-gray-500">Actual</p>
+                              <p className="text-2xl font-bold">{lastScore.actual.toFixed(1)}%</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg mb-3">
+                            <span className="font-semibold">Error</span>
+                            <span className={`text-xl font-bold ${feedback.color}`}>{lastScore.error.toFixed(1)}%</span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center bg-primary bg-opacity-10 p-3 rounded-lg">
+                            <span className="font-semibold">Points earned</span>
+                            <span className="text-xl font-bold text-primary">+{lastPoints} pts</span>
+                          </div>
+                          
+                          <div className="mt-3 pt-3 border-t border-gray-200">
+                            <div className="flex justify-between items-center">
+                              <span className="font-semibold">Total score</span>
+                              <span className="text-xl font-bold">{totalPoints} pts</span>
+                            </div>
+                            <div className="text-sm text-gray-500 mt-1">
+                              Keep guessing to improve your score!
+                            </div>
+                          </div>
                         </div>
                       )}
                     </>

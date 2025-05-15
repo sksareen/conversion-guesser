@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import KeyboardShortcuts from '@/components/KeyboardShortcuts';
+import PostHogProvider from '@/components/PostHogProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,10 +24,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <main className="container mx-auto px-4 py-8 sm:max-w-xl md:max-w-2xl">
-          {children}
-          <KeyboardShortcuts />
-        </main>
+        <PostHogProvider>
+          <main className="container mx-auto px-4 py-8 sm:max-w-xl md:max-w-2xl">
+            {children}
+            <KeyboardShortcuts />
+          </main>
+        </PostHogProvider>
       </body>
     </html>
   );

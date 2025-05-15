@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { trackEvent } from '@/lib/posthog';
 
 export default function WelcomeDialog() {
   const [isVisible, setIsVisible] = useState(false);
@@ -10,12 +11,16 @@ export default function WelcomeDialog() {
     const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
     if (!hasSeenWelcome) {
       setIsVisible(true);
+      // Track when welcome dialog is shown to a new user
+      trackEvent('welcome_dialog_shown');
     }
   }, []);
 
   const handleClose = () => {
     localStorage.setItem('hasSeenWelcome', 'true');
     setIsVisible(false);
+    // Track when user closes the welcome dialog
+    trackEvent('welcome_dialog_closed');
   };
 
   return (
