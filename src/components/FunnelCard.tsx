@@ -164,16 +164,16 @@ export default function FunnelCard() {
       username
     });
 
-    // First show the score overlay
+    // Show the score overlay
     setShowScoreOverlay(true);
     
-    // After the overlay is shown for a bit, show the reveal
+    // After the overlay is shown for a bit, proceed to the next question directly
     setTimeout(() => {
       // Hide the overlay
       setShowScoreOverlay(false);
-      // Then show the result
-      setShowResult(true);
-    }, 1500);
+      // Go directly to the next question instead of showing result
+      setupNewQuestion();
+    }, 3500); // Allow a bit more time to see the score before moving on
 
     // Prepare shareable text card and copy to clipboard
     try {
@@ -230,7 +230,7 @@ export default function FunnelCard() {
           <div className="flex flex-col items-center mb-6">
             <div className="relative w-32 h-32 mb-6">
               <Image
-                src={`/logos/${currentCompany.logo}`}
+                src={`${currentCompany.logo}`}
                 alt={currentCompany.company}
                 width={128}
                 height={128}
@@ -241,7 +241,7 @@ export default function FunnelCard() {
                   
                   // Try alternate extensions if the original path fails
                   const originalSrc = e.currentTarget.src;
-                  const basePath = `/logos/${currentCompany.logo}`;
+                  const basePath = `${currentCompany.logo}`;
                   
                   // Try JPG if not already
                   if (!originalSrc.includes('.jpg')) {
@@ -372,7 +372,7 @@ export default function FunnelCard() {
         {showScoreOverlay && (
           <motion.div
             key="score-overlay"
-            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-20 backdrop-blur-sm z-50"
+            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -383,69 +383,164 @@ export default function FunnelCard() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl p-6 shadow-lg w-11/12 max-w-sm text-center relative"
+              className="bg-white rounded-xl p-6 shadow-lg w-11/12 max-w-sm text-center relative"
             >
-              <button 
-                onClick={() => setShowScoreOverlay(false)}
-                className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
-                aria-label="Close score overlay"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
               {
                 (() => {
-                  const averageError = scores.length > 0 ? scores.reduce((sum, s) => sum + s.error, 0) / scores.length : 0;
-                  const accuracyScore = Math.max(0, 100 - (averageError * 3));
                   const lastScore = scores.length > 0 ? scores[scores.length - 1] : null;
                   
-                  let feedback = { emoji: '🤔', text: 'Try again', color: 'text-red-600', bucket: '⬜' };
+                  let feedback = { emoji: '🤔', text: 'Try again', color: 'text-red-600', accuracy: 'Off target' };
                   
                   if (lastScore) {
-                    if (lastScore.error <= 2) feedback = { emoji: '🎯', text: 'Perfect!', color: 'text-green-600', bucket: '🟩' };
-                    else if (lastScore.error <= 5) feedback = { emoji: '✨', text: 'Excellent!', color: 'text-green-600', bucket: '🟩' };
-                    else if (lastScore.error <= 10) feedback = { emoji: '👍', text: 'Good!', color: 'text-yellow-600', bucket: '🟨' };
-                    else if (lastScore.error <= 15) feedback = { emoji: '😊', text: 'Not bad', color: 'text-yellow-500', bucket: '🟨' };
+                    if (lastScore.error <= 2) feedback = { emoji: '🎯', text: 'Perfect!', color: 'text-green-600', accuracy: 'Perfect!' };
+                    else if (lastScore.error <= 5) feedback = { emoji: '✨', text: 'Excellent!', color: 'text-green-600', accuracy: 'Excellent!' };
+                    else if (lastScore.error <= 10) feedback = { emoji: '👍', text: 'Good!', color: 'text-yellow-600', accuracy: 'Close!' };
+                    else if (lastScore.error <= 15) feedback = { emoji: '😊', text: 'Not bad', color: 'text-yellow-500', accuracy: 'Getting there' };
                   }
                   
                   return (
                     <>
                       {lastScore && (
-                        <div className="mb-4">
-                          <div className={`text-5xl font-black mb-3 ${feedback.color}`}>
-                            {feedback.emoji} {feedback.text}
+                        <div>
+                          {/* Company information at the top */}
+                          <div className="mb-3">
+                            <h3 className="text-xl font-bold">{lastScore.product}</h3>
+                            <p className="text-sm text-gray-600">{lastScore.funnel}</p>
+                          </div>
+                        
+                          {/* Simplified UI with less visual noise */}
+                          <div className={`text-6xl font-black mb-4 ${feedback.color}`}>
+                            {feedback.emoji}
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-4 mb-3">
-                            <div className="text-center">
-                              <p className="text-sm text-gray-500">Your guess</p>
-                              <p className="text-2xl font-bold">{lastScore.guess.toFixed(1)}%</p>
+                          <div className="text-xl font-bold mb-5 text-center">
+                            {feedback.accuracy}
+                          </div>
+                          
+                          {/* Improved visual comparison */}
+                          <div className="mb-5">
+                            {/* Scale legend */}
+                            <div className="flex justify-between text-xs text-gray-500 mb-1">
+                              <span>0%</span>
+                              <span>50%</span>
+                              <span>100%</span>
                             </div>
-                            <div className="text-center">
-                              <p className="text-sm text-gray-500">Actual</p>
-                              <p className="text-2xl font-bold">{lastScore.actual.toFixed(1)}%</p>
+                            
+                            {/* Main bar container */}
+                            <div className="h-20 w-full bg-gray-100 rounded-lg relative overflow-hidden mb-2">
+                              {/* Grid lines for reference */}
+                              <div className="absolute inset-0 flex justify-between pointer-events-none">
+                                <div className="h-full w-px bg-gray-300"></div>
+                                <div className="h-full w-px bg-gray-300"></div>
+                                <div className="h-full w-px bg-gray-300"></div>
+                              </div>
+                              
+                              {(() => {
+                                // Calculate positions as percentage (capped between 0-100%)
+                                const guessPos = Math.max(0, Math.min(100, lastScore.guess));
+                                const actualPos = Math.max(0, Math.min(100, lastScore.actual));
+                                
+                                // Calculate from center for markers
+                                const isHigher = guessPos > actualPos;
+                                
+                                return (
+                                  <>
+                                    {/* Actual value marker - a horizontal line across the bar */}
+                                    <div 
+                                      className="absolute h-0.5 bg-green-500 w-full"
+                                      style={{ top: `calc(${100 - actualPos}% - 1px)` }}
+                                    />
+                                    
+                                    {/* Actual value label */}
+                                    <div 
+                                      className="absolute flex items-center"
+                                      style={{ 
+                                        right: '0px',
+                                        top: `calc(${100 - actualPos}% - 12px)`
+                                      }}
+                                    >
+                                      <div className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-bold">
+                                        {lastScore.actual.toFixed(1)}%
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Your guess marker - a dot on the scale */}
+                                    <div 
+                                      className={`absolute h-4 w-4 rounded-full bg-blue-500 border-2 border-white
+                                        ${isHigher ? 'animate-pulse-scale' : ''}`}
+                                      style={{ 
+                                        left: '50%',
+                                        top: `calc(${100 - guessPos}% - 8px)`,
+                                        transform: 'translateX(-50%)'
+                                      }}
+                                    />
+                                    
+                                    {/* Your guess label */}
+                                    <div 
+                                      className="absolute flex items-center"
+                                      style={{ 
+                                        left: '0px',
+                                        top: `calc(${100 - guessPos}% - 12px)`
+                                      }}
+                                    >
+                                      <div className="bg-blue-500 text-white px-2 py-1 rounded-md text-xs font-bold">
+                                        {lastScore.guess.toFixed(1)}%
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Distance visualization */}
+                                    <div 
+                                      className={`absolute left-0 right-0 ${isHigher ? 'bg-red-200' : 'bg-red-200'}`}
+                                      style={{ 
+                                        top: `calc(${100 - Math.max(guessPos, actualPos)}%)`,
+                                        height: `${Math.abs(guessPos - actualPos)}%`,
+                                        opacity: 0.5
+                                      }}
+                                    />
+                                  </>
+                                );
+                              })()}
+                            </div>
+                            
+                            {/* Legend */}
+                            <div className="flex justify-center gap-4 text-xs text-gray-600">
+                              <div className="flex items-center">
+                                <div className="w-3 h-3 bg-blue-500 rounded-full mr-1"></div>
+                                <span>Your guess</span>
+                              </div>
+                              <div className="flex items-center">
+                                <div className="w-3 h-0.5 bg-green-500 mr-1"></div>
+                                <span>Actual</span>
+                              </div>
                             </div>
                           </div>
                           
-                          <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg mb-3">
-                            <span className="font-semibold">Error</span>
-                            <span className={`text-xl font-bold ${feedback.color}`}>{lastScore.error.toFixed(1)}%</span>
-                          </div>
-                          
-                          <div className="flex justify-between items-center bg-primary bg-opacity-10 p-3 rounded-lg">
-                            <span className="font-semibold">Points earned</span>
-                            <span className="text-xl font-bold text-primary">+{lastPoints} pts</span>
-                          </div>
-                          
-                          <div className="mt-3 pt-3 border-t border-gray-200">
+                          <div className="bg-primary bg-opacity-10 p-4 rounded-lg mb-2">
                             <div className="flex justify-between items-center">
-                              <span className="font-semibold">Total score</span>
-                              <span className="text-xl font-bold">{totalPoints} pts</span>
+                              <span className="text-lg font-medium">Points earned:</span>
+                              <span className="text-3xl font-bold text-primary">+{lastPoints}</span>
                             </div>
-                            <div className="text-sm text-gray-500 mt-1">
-                              Keep guessing to improve your score!
+                            
+                            {/* Explain point calculation */}
+                            <div className="text-xs text-gray-600 text-left mt-2">
+                              {(() => {
+                                if (lastScore.error <= 1) return "Perfect accuracy! +100 points";
+                                if (lastScore.error <= 3) return "Excellent guess! +75 points";
+                                if (lastScore.error <= 5) return "Great guess! +50 points";
+                                if (lastScore.error <= 10) return "Good guess! +25 points";
+                                if (lastScore.error <= 15) return "Not bad! +10 points";
+                                if (lastScore.error <= 20) return "Getting closer! +5 points";
+                                return "Keep trying! +1 point";
+                              })()}
                             </div>
+                          </div>
+                          
+                          <div className="text-xl font-bold mt-4 mb-3">
+                            Total: {totalPoints} points
+                          </div>
+                          
+                          <div className="text-sm text-gray-500">
+                            Next question in a moment...
                           </div>
                         </div>
                       )}

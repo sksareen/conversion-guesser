@@ -6,7 +6,7 @@ import { useGameStore } from '@/lib/store';
 import { trackEvent } from '@/lib/posthog';
 
 export default function ScoreTable() {
-  const { scores, clearScores, username, setUsername, globalLeaderboard, fetchLeaderboard, isLoading } = useGameStore();
+  const { scores, clearScores, username, setUsername, globalLeaderboard, fetchLeaderboard, isLoading, totalPoints } = useGameStore();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('personal');
   const [isEditingName, setIsEditingName] = useState(false);
@@ -233,15 +233,13 @@ export default function ScoreTable() {
                         <p className="font-bold text-xl text-primary">{scores.length}</p>
                       </div>
                       <div className="bg-white p-3 rounded-lg">
+                        <p className="text-gray-600 text-xs uppercase">Total Points</p>
+                        <p className="font-bold text-xl text-primary">{totalPoints}</p>
+                      </div>
+                      <div className="bg-white p-3 rounded-lg">
                         <p className="text-gray-600 text-xs uppercase">Avg Error</p>
                         <p className={`font-bold text-xl ${averageError <= 5 ? 'text-green-600' : averageError <= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
                           {averageError.toFixed(1)}%
-                        </p>
-                      </div>
-                      <div className="bg-white p-3 rounded-lg">
-                        <p className="text-gray-600 text-xs uppercase">Best Guess</p>
-                        <p className="font-bold text-xl text-green-600">
-                          {scores.length > 0 ? Math.min(...scores.map(s => s.error)).toFixed(1) : '0.0'}%
                         </p>
                       </div>
                     </div>
@@ -255,7 +253,7 @@ export default function ScoreTable() {
                           <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Company</th>
                           <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Your Guess</th>
                           <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Actual</th>
-                          <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Error</th>
+                          <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Points</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
@@ -268,8 +266,12 @@ export default function ScoreTable() {
                             <td className="px-3 py-3 whitespace-nowrap text-sm text-center font-medium">{score.guess.toFixed(1)}%</td>
                             <td className="px-3 py-3 whitespace-nowrap text-sm text-center font-medium">{score.actual.toFixed(1)}%</td>
                             <td className="px-3 py-3 whitespace-nowrap text-sm text-center">
-                              <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${score.error <= 5 ? 'bg-green-100 text-green-800' : score.error <= 15 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                                {score.error.toFixed(1)}%
+                              <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                score.points >= 50 ? 'bg-green-100 text-green-800' : 
+                                score.points >= 25 ? 'bg-yellow-100 text-yellow-800' : 
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                +{score.points}
                               </span>
                             </td>
                           </tr>
@@ -303,7 +305,7 @@ export default function ScoreTable() {
                               <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Rank</th>
                               <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Player</th>
                               <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Level</th>
-                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Avg Error</th>
+                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Points</th>
                               <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase hidden sm:table-cell">Guesses</th>
                             </tr>
                           </thead>
@@ -333,7 +335,7 @@ export default function ScoreTable() {
                                   </span>
                                 </td>
                                 <td className="px-3 py-3 whitespace-nowrap text-sm text-center font-medium">
-                                  {entry.averageError.toFixed(1)}%
+                                  {entry.totalPoints || 0}
                                 </td>
                                 <td className="px-3 py-3 whitespace-nowrap text-sm text-center hidden sm:table-cell">
                                   {entry.totalGuesses}

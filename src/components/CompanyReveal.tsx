@@ -102,7 +102,7 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
           >
             <div className="relative w-32 h-32 mb-6">
               <Image
-                src={`/logos/${company.logo}`}
+                src={`${company.logo}`}
                 alt={company.company}
                 width={128}
                 height={128}
@@ -113,7 +113,7 @@ export default function CompanyReveal({ company, guess, onContinue }: CompanyRev
                   
                   // Try alternate extensions if the original path fails
                   const originalSrc = e.currentTarget.src;
-                  const basePath = `/logos/${company.logo}`;
+                  const basePath = `${company.logo}`;
                   
                   // Try different extensions
                   if (!originalSrc.includes('.jpg')) {
