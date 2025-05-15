@@ -41,7 +41,7 @@ export default function KeyboardShortcuts() {
             
             <div className="mt-4 pt-3 border-t border-gray-200">
               <a 
-                href="https://forms.gle/KSHXN641ArE3iRiw5" 
+                href="https://forms.gle/KSHXN641ArE3iRiw5j" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="flex items-center justify-center text-sm text-primary hover:underline"
