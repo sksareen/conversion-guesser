@@ -38,6 +38,20 @@ export default function KeyboardShortcuts() {
                 <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-md">Esc</kbd>
               </li>
             </ul>
+            
+            <div className="mt-4 pt-3 border-t border-gray-200">
+              <a 
+                href="https://forms.gle/KSHXN641ArE3iRiw5" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center justify-center text-sm text-primary hover:underline"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clipRule="evenodd" />
+                </svg>
+                Send Feedback
+              </a>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
