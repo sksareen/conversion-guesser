@@ -102,7 +102,7 @@ export default function ScoreTable() {
       className="bg-white rounded-xl shadow-md overflow-hidden"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
+      transition={{ duration: 0.4, delay: 0.1 }}
     >
       {/* Collapsible header */}
       <button 
@@ -217,7 +217,7 @@ export default function ScoreTable() {
                       <span className="text-xs text-gray-500">Expert</span>
                     </div>
                     
-                    <div className="h-4 bg-gray-200 rounded-full mb-4 overflow-hidden">
+                    <div className="h-3 bg-gray-200 rounded-full mb-4 overflow-hidden">
                       <div 
                         className="h-full rounded-full transition-all duration-1000 ease-out"
                         style={{ 
@@ -302,11 +302,10 @@ export default function ScoreTable() {
                         <table className="min-w-full divide-y divide-gray-200">
                           <thead className="bg-gray-50">
                             <tr>
-                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Rank</th>
-                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Player</th>
-                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Level</th>
-                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Points</th>
-                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase hidden sm:table-cell">Guesses</th>
+                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500">Rank</th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">Player</th>
+                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500">Points</th>
+                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 hidden sm:table-cell">Guesses</th>
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-200">
@@ -322,17 +321,17 @@ export default function ScoreTable() {
                                       <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">You</span>
                                     )}
                                   </div>
-                                </td>
-                                <td className="px-3 py-3 whitespace-nowrap text-sm text-center">
-                                  <span className={`text-xs font-medium ${
-                                    entry.performanceLevel === "Marketing Guru" ? "text-green-600" :
-                                    entry.performanceLevel === "Conversion Expert" ? "text-green-500" :
-                                    entry.performanceLevel === "Digital Marketer" ? "text-yellow-600" :
-                                    entry.performanceLevel === "Marketing Student" ? "text-yellow-500" :
-                                    "text-red-500"
-                                  }`}>
-                                    {entry.performanceLevel}
-                                  </span>
+                                  <div className="text-xs text-gray-500">
+                                    <span className={
+                                      entry.performanceLevel === "Marketing Guru" ? "text-green-600" :
+                                      entry.performanceLevel === "Conversion Expert" ? "text-green-500" :
+                                      entry.performanceLevel === "Digital Marketer" ? "text-yellow-600" :
+                                      entry.performanceLevel === "Marketing Student" ? "text-yellow-500" :
+                                      "text-red-500"
+                                    }>
+                                      {entry.performanceLevel}
+                                    </span>
+                                  </div>
                                 </td>
                                 <td className="px-3 py-3 whitespace-nowrap text-sm text-center font-medium">
                                   {entry.totalPoints || 0}

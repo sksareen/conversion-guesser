@@ -402,37 +402,29 @@ export default function FunnelCard() {
                     <>
                       {lastScore && (
                         <div>
-                          {/* Company information at the top */}
-                          <div className="mb-3">
+                          {/* Simplified layout with reduced visual noise */}
+                          <div className="mb-4">
                             <h3 className="text-xl font-bold">{lastScore.product}</h3>
                             <p className="text-sm text-gray-600">{lastScore.funnel}</p>
                           </div>
-                        
-                          {/* Simplified UI with less visual noise */}
-                          <div className={`text-6xl font-black mb-4 ${feedback.color}`}>
+                          
+                          {/* Feedback section */}
+                          <div className={`text-5xl font-black mb-2 ${feedback.color}`}>
                             {feedback.emoji}
                           </div>
                           
-                          <div className="text-xl font-bold mb-5 text-center">
+                          <div className="text-xl font-bold mb-4 text-center">
                             {feedback.accuracy}
                           </div>
                           
-                          {/* Improved visual comparison */}
+                          {/* Simplified visual comparison */}
                           <div className="mb-5">
-                            {/* Scale legend */}
-                            <div className="flex justify-between text-xs text-gray-500 mb-1">
-                              <span>0%</span>
-                              <span>50%</span>
-                              <span>100%</span>
-                            </div>
-                            
-                            {/* Main bar container */}
-                            <div className="h-20 w-full bg-gray-100 rounded-lg relative overflow-hidden mb-2">
-                              {/* Grid lines for reference */}
-                              <div className="absolute inset-0 flex justify-between pointer-events-none">
-                                <div className="h-full w-px bg-gray-300"></div>
-                                <div className="h-full w-px bg-gray-300"></div>
-                                <div className="h-full w-px bg-gray-300"></div>
+                            <div className="h-12 w-full bg-gray-50 rounded-lg relative overflow-hidden mb-3">
+                              {/* Grid lines at 25%, 50%, 75% */}
+                              <div className="absolute inset-0 flex justify-between px-6 pointer-events-none">
+                                <div className="h-full w-px bg-gray-200"></div>
+                                <div className="h-full w-px bg-gray-200"></div>
+                                <div className="h-full w-px bg-gray-200"></div>
                               </div>
                               
                               {(() => {
@@ -440,61 +432,30 @@ export default function FunnelCard() {
                                 const guessPos = Math.max(0, Math.min(100, lastScore.guess));
                                 const actualPos = Math.max(0, Math.min(100, lastScore.actual));
                                 
-                                // Calculate from center for markers
-                                const isHigher = guessPos > actualPos;
-                                
                                 return (
                                   <>
-                                    {/* Actual value marker - a horizontal line across the bar */}
+                                    {/* Actual value marker */}
                                     <div 
-                                      className="absolute h-0.5 bg-green-500 w-full"
-                                      style={{ top: `calc(${100 - actualPos}% - 1px)` }}
+                                      className="absolute h-full w-1 bg-green-500"
+                                      style={{ left: `${actualPos}%` }}
                                     />
                                     
-                                    {/* Actual value label */}
+                                    {/* Your guess marker */}
                                     <div 
-                                      className="absolute flex items-center"
+                                      className="absolute h-3 w-3 rounded-full bg-blue-500 border-2 border-white"
                                       style={{ 
-                                        right: '0px',
-                                        top: `calc(${100 - actualPos}% - 12px)`
-                                      }}
-                                    >
-                                      <div className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-bold">
-                                        {lastScore.actual.toFixed(1)}%
-                                      </div>
-                                    </div>
-                                    
-                                    {/* Your guess marker - a dot on the scale */}
-                                    <div 
-                                      className={`absolute h-4 w-4 rounded-full bg-blue-500 border-2 border-white
-                                        ${isHigher ? 'animate-pulse-scale' : ''}`}
-                                      style={{ 
-                                        left: '50%',
-                                        top: `calc(${100 - guessPos}% - 8px)`,
-                                        transform: 'translateX(-50%)'
+                                        left: `${guessPos}%`,
+                                        top: '50%',
+                                        transform: 'translate(-50%, -50%)'
                                       }}
                                     />
                                     
-                                    {/* Your guess label */}
+                                    {/* Highlight difference */}
                                     <div 
-                                      className="absolute flex items-center"
+                                      className="absolute h-full bg-red-100 opacity-40"
                                       style={{ 
-                                        left: '0px',
-                                        top: `calc(${100 - guessPos}% - 12px)`
-                                      }}
-                                    >
-                                      <div className="bg-blue-500 text-white px-2 py-1 rounded-md text-xs font-bold">
-                                        {lastScore.guess.toFixed(1)}%
-                                      </div>
-                                    </div>
-                                    
-                                    {/* Distance visualization */}
-                                    <div 
-                                      className={`absolute left-0 right-0 ${isHigher ? 'bg-red-200' : 'bg-red-200'}`}
-                                      style={{ 
-                                        top: `calc(${100 - Math.max(guessPos, actualPos)}%)`,
-                                        height: `${Math.abs(guessPos - actualPos)}%`,
-                                        opacity: 0.5
+                                        left: `${Math.min(guessPos, actualPos)}%`,
+                                        width: `${Math.abs(guessPos - actualPos)}%`,
                                       }}
                                     />
                                   </>
@@ -502,44 +463,30 @@ export default function FunnelCard() {
                               })()}
                             </div>
                             
-                            {/* Legend */}
-                            <div className="flex justify-center gap-4 text-xs text-gray-600">
-                              <div className="flex items-center">
-                                <div className="w-3 h-3 bg-blue-500 rounded-full mr-1"></div>
-                                <span>Your guess</span>
+                            {/* Simple values display */}
+                            <div className="flex justify-between text-sm font-medium">
+                              <div>
+                                <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
+                                Your guess: <span className="font-bold">{lastScore.guess.toFixed(1)}%</span>
                               </div>
-                              <div className="flex items-center">
-                                <div className="w-3 h-0.5 bg-green-500 mr-1"></div>
-                                <span>Actual</span>
+                              <div>
+                                <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                                Actual: <span className="font-bold">{lastScore.actual.toFixed(1)}%</span>
                               </div>
                             </div>
                           </div>
                           
-                          <div className="bg-primary bg-opacity-10 p-4 rounded-lg mb-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-lg font-medium">Points earned:</span>
-                              <span className="text-3xl font-bold text-primary">+{lastPoints}</span>
-                            </div>
-                            
-                            {/* Explain point calculation */}
-                            <div className="text-xs text-gray-600 text-left mt-2">
-                              {(() => {
-                                if (lastScore.error <= 1) return "Perfect accuracy! +100 points";
-                                if (lastScore.error <= 3) return "Excellent guess! +75 points";
-                                if (lastScore.error <= 5) return "Great guess! +50 points";
-                                if (lastScore.error <= 10) return "Good guess! +25 points";
-                                if (lastScore.error <= 15) return "Not bad! +10 points";
-                                if (lastScore.error <= 20) return "Getting closer! +5 points";
-                                return "Keep trying! +1 point";
-                              })()}
-                            </div>
+                          {/* Points earned - simplified */}
+                          <div className="bg-primary bg-opacity-5 rounded-lg p-4 mb-3 flex justify-between items-center">
+                            <span className="text-gray-700">Points earned</span>
+                            <span className="text-2xl font-bold text-primary">+{lastPoints}</span>
                           </div>
                           
-                          <div className="text-xl font-bold mt-4 mb-3">
+                          <div className="text-lg font-medium">
                             Total: {totalPoints} points
                           </div>
                           
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-gray-500 mt-3">
                             Next question in a moment...
                           </div>
                         </div>
