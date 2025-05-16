@@ -368,137 +368,68 @@ export default function FunnelCard() {
       </AnimatePresence>
 
       {/* Score overlay */}
-      <AnimatePresence>
-        {showScoreOverlay && (
+      {showScoreOverlay && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 rounded-xl">
           <motion.div
-            key="score-overlay"
-            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg p-6 flex flex-col items-center max-w-[90%]"
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white rounded-xl p-6 shadow-lg w-11/12 max-w-sm text-center relative"
-            >
-              {
-                (() => {
-                  const lastScore = scores.length > 0 ? scores[scores.length - 1] : null;
+            {(() => {
+              // Get the last score from the scores array
+              const lastScore = scores.length > 0 ? scores[scores.length - 1] : null;
+              const errorPercentage = lastScore ? lastScore.error : 0;
+              const guessValue = lastScore ? lastScore.guess : 0;
+              const actualValue = lastScore ? lastScore.actual : 0;
+              
+              return (
+                <>
+                  {/* Company name */}
+                  <h3 className="font-bold text-lg mb-3">{lastScore?.product}</h3>
                   
-                  let feedback = { emoji: '🤔', text: 'Try again', color: 'text-red-600', accuracy: 'Off target' };
+                  {/* Guess vs Actual - Most prominent */}
+                  <div className="flex items-center justify-center gap-6 mb-5">
+                    <div className="text-center">
+                      <div className="text-sm text-gray-500 mb-1">Your Guess</div>
+                      <div className="text-3xl font-bold">{guessValue.toFixed(1)}%</div>
+                    </div>
+                    <div className="text-4xl font-light text-gray-300">vs</div>
+                    <div className="text-center">
+                      <div className="text-sm text-gray-500 mb-1">Actual</div>
+                      <div className="text-3xl font-bold text-primary">{actualValue.toFixed(1)}%</div>
+                    </div>
+                  </div>
                   
-                  if (lastScore) {
-                    if (lastScore.error <= 2) feedback = { emoji: '🎯', text: 'Perfect!', color: 'text-green-600', accuracy: 'Perfect!' };
-                    else if (lastScore.error <= 5) feedback = { emoji: '✨', text: 'Excellent!', color: 'text-green-600', accuracy: 'Excellent!' };
-                    else if (lastScore.error <= 10) feedback = { emoji: '👍', text: 'Good!', color: 'text-yellow-600', accuracy: 'Close!' };
-                    else if (lastScore.error <= 15) feedback = { emoji: '😊', text: 'Not bad', color: 'text-yellow-500', accuracy: 'Getting there' };
-                  }
+                  {/* Error - Second level */}
+                  <div className="flex items-center justify-center mb-4">
+                    <span className="text-sm text-gray-600 mr-2">Error:</span>
+                    <span className={`font-bold ${errorPercentage <= 5 ? 'text-green-600' : errorPercentage <= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
+                      {errorPercentage.toFixed(1)}%
+                    </span>
+                  </div>
                   
-                  return (
-                    <>
-                      {lastScore && (
-                        <div>
-                          {/* Simplified layout with reduced visual noise */}
-                          <div className="mb-4">
-                            <h3 className="text-xl font-bold">{lastScore.product}</h3>
-                            <p className="text-sm text-gray-600">{lastScore.funnel}</p>
-                          </div>
-                          
-                          {/* Feedback section */}
-                          <div className={`text-5xl font-black mb-2 ${feedback.color}`}>
-                            {feedback.emoji}
-                          </div>
-                          
-                          <div className="text-xl font-bold mb-4 text-center">
-                            {feedback.accuracy}
-                          </div>
-                          
-                          {/* Simplified visual comparison */}
-                          <div className="mb-5">
-                            <div className="h-12 w-full bg-gray-50 rounded-lg relative overflow-hidden mb-3">
-                              {/* Grid lines at 25%, 50%, 75% */}
-                              <div className="absolute inset-0 flex justify-between px-6 pointer-events-none">
-                                <div className="h-full w-px bg-gray-200"></div>
-                                <div className="h-full w-px bg-gray-200"></div>
-                                <div className="h-full w-px bg-gray-200"></div>
-                              </div>
-                              
-                              {(() => {
-                                // Calculate positions as percentage (capped between 0-100%)
-                                const guessPos = Math.max(0, Math.min(100, lastScore.guess));
-                                const actualPos = Math.max(0, Math.min(100, lastScore.actual));
-                                
-                                return (
-                                  <>
-                                    {/* Actual value marker */}
-                                    <div 
-                                      className="absolute h-full w-1 bg-green-500"
-                                      style={{ left: `${actualPos}%` }}
-                                    />
-                                    
-                                    {/* Your guess marker */}
-                                    <div 
-                                      className="absolute h-3 w-3 rounded-full bg-blue-500 border-2 border-white"
-                                      style={{ 
-                                        left: `${guessPos}%`,
-                                        top: '50%',
-                                        transform: 'translate(-50%, -50%)'
-                                      }}
-                                    />
-                                    
-                                    {/* Highlight difference */}
-                                    <div 
-                                      className="absolute h-full bg-red-100 opacity-40"
-                                      style={{ 
-                                        left: `${Math.min(guessPos, actualPos)}%`,
-                                        width: `${Math.abs(guessPos - actualPos)}%`,
-                                      }}
-                                    />
-                                  </>
-                                );
-                              })()}
-                            </div>
-                            
-                            {/* Simple values display */}
-                            <div className="flex justify-between text-sm font-medium">
-                              <div>
-                                <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
-                                Your guess: <span className="font-bold">{lastScore.guess.toFixed(1)}%</span>
-                              </div>
-                              <div>
-                                <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                                Actual: <span className="font-bold">{lastScore.actual.toFixed(1)}%</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Points earned - simplified */}
-                          <div className="bg-primary bg-opacity-5 rounded-lg p-4 mb-3 flex justify-between items-center">
-                            <span className="text-gray-700">Points earned</span>
-                            <span className="text-2xl font-bold text-primary">+{lastPoints}</span>
-                          </div>
-                          
-                          <div className="text-lg font-medium">
-                            Total: {totalPoints} points
-                          </div>
-                          
-                          <div className="text-sm text-gray-500 mt-3">
-                            Next question in a moment...
-                          </div>
+                  {/* Accuracy & Performance - Bottom level */}
+                  <div className="pt-3 border-t border-gray-100 w-full text-center">
+                    <div className="text-sm text-gray-500 mb-1">Your performance</div>
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="text-center">
+                        <span className="text-xs text-gray-500">Accuracy</span>
+                        <div className="font-bold text-primary">
+                          {(100 - errorPercentage).toFixed(1)}%
                         </div>
-                      )}
-                    </>
-                  );
-                })()
-              }
-            </motion.div>
+                      </div>
+                      <div className="text-center">
+                        <span className="text-xs text-gray-500">Total Guesses</span>
+                        <div className="font-bold">{scores.length}</div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
       
       {/* Username prompt overlay */}
       <AnimatePresence>

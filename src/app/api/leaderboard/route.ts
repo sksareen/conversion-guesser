@@ -17,7 +17,8 @@ export async function GET() {
     const { data, error } = await supabase
       .from('leaderboard')
       .select('*')
-      .order('total_points', { ascending: false })
+      .gte('total_guesses', 5) // Only include users with at least 5 guesses
+      .order('average_error', { ascending: true })
       .limit(20);
     
     if (error) {
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
     }
     
     const body = await request.json();
-    const { username, averageError, totalGuesses, bestError, performanceLevel, totalPoints } = body;
+    const { username, averageError, totalGuesses, bestError, performanceLevel, totalPoints, averageAccuracy } = body;
     
     if (!username) {
       return NextResponse.json({ 
@@ -83,7 +84,8 @@ export async function POST(request: Request) {
         totalGuesses, 
         bestError, 
         performanceLevel,
-        totalPoints || 0
+        totalPoints || 0,
+        averageAccuracy
       );
       
       let result;
@@ -114,7 +116,8 @@ export async function POST(request: Request) {
       const { data: updatedLeaderboard, error: fetchError } = await supabase
         .from('leaderboard')
         .select('*')
-        .order('total_points', { ascending: false })
+        .gte('total_guesses', 5) // Only include users with at least 5 guesses
+        .order('average_error', { ascending: true })
         .limit(20);
       
       if (fetchError) {

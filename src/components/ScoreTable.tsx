@@ -6,7 +6,7 @@ import { useGameStore } from '@/lib/store';
 import { trackEvent } from '@/lib/posthog';
 
 export default function ScoreTable() {
-  const { scores, clearScores, username, setUsername, globalLeaderboard, fetchLeaderboard, isLoading, totalPoints } = useGameStore();
+  const { scores, clearScores, username, setUsername, globalLeaderboard, fetchLeaderboard, isLoading, totalPoints, averageAccuracy } = useGameStore();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('personal');
   const [isEditingName, setIsEditingName] = useState(false);
@@ -18,8 +18,8 @@ export default function ScoreTable() {
     ? scores.reduce((sum, score) => sum + score.error, 0) / scores.length
     : 0;
     
-  // Calculate accuracy score (100 - averageError, min 0)
-  const accuracyScore = Math.max(0, 100 - (averageError * 3));
+  // Calculate accuracy score (100 - averageError)
+  const accuracyScore = Math.max(0, 100 - averageError);
   
   // Fetch leaderboard when component mounts or tab changes to leaderboard
   useEffect(() => {
@@ -35,11 +35,11 @@ export default function ScoreTable() {
   
   // Get performance level
   const getPerformanceLevel = () => {
-    if (averageError <= 5) return { text: "Marketing Guru", color: "text-green-600" };
-    if (averageError <= 10) return { text: "Conversion Expert", color: "text-green-500" };
-    if (averageError <= 15) return { text: "Digital Marketer", color: "text-yellow-600" };
-    if (averageError <= 20) return { text: "Marketing Student", color: "text-yellow-500" };
-    return { text: "Conversion Novice", color: "text-red-500" };
+    if (averageError <= 5) return { text: "Conversion Wizard", color: "text-green-600" };
+    if (averageError <= 10) return { text: "Funnel Expert", color: "text-green-500" };
+    if (averageError <= 15) return { text: "Marketing Pro", color: "text-yellow-600" };
+    if (averageError <= 20) return { text: "Funnel Student", color: "text-yellow-500" };
+    return { text: "Funnel Novice", color: "text-red-500" };
   };
   
   const performance = getPerformanceLevel();
@@ -233,8 +233,9 @@ export default function ScoreTable() {
                         <p className="font-bold text-xl text-primary">{scores.length}</p>
                       </div>
                       <div className="bg-white p-3 rounded-lg">
-                        <p className="text-gray-600 text-xs uppercase">Total Points</p>
-                        <p className="font-bold text-xl text-primary">{totalPoints}</p>
+                        <p className="text-gray-600 text-xs uppercase">Avg Accuracy</p>
+                        <p className="font-bold text-xl text-primary">{accuracyScore.toFixed(1)}%</p>
+                        <p className="text-gray-500 text-xs">100% - avg error</p>
                       </div>
                       <div className="bg-white p-3 rounded-lg">
                         <p className="text-gray-600 text-xs uppercase">Avg Error</p>
@@ -245,6 +246,12 @@ export default function ScoreTable() {
                     </div>
                   </div>
                   
+                  {/* Explanation of scoring methodology */}
+                  <div className="p-3 bg-blue-50 rounded-lg mb-4 text-sm">
+                    <p className="font-medium text-blue-700 mb-1">Scoring Methodology</p>
+                    <p className="text-blue-600">Your performance is rated based on your <b>average error</b> - how close your guesses are to the actual conversion rates. Lower error = higher accuracy.</p>
+                  </div>
+
                   <h3 className="font-medium text-lg mb-3">Recent Guesses</h3>
                   <div className="overflow-hidden rounded-lg border border-gray-200">
                     <table className="min-w-full divide-y divide-gray-200">
@@ -298,51 +305,64 @@ export default function ScoreTable() {
                         <p>No entries yet! Be the first to join the leaderboard.</p>
                       </div>
                     ) : (
-                      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500">Rank</th>
-                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">Player</th>
-                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500">Points</th>
-                              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-500 hidden sm:table-cell">Guesses</th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {globalLeaderboard.map((entry, index) => (
-                              <tr key={entry.id} className={username === entry.username ? "bg-blue-50" : ""}>
-                                <td className="px-3 py-3 whitespace-nowrap text-sm text-center font-bold">
-                                  {index + 1}
-                                </td>
-                                <td className="px-3 py-3 whitespace-nowrap text-sm">
-                                  <div className="font-medium text-gray-900 flex items-center">
-                                    {entry.username}
-                                    {username === entry.username && (
-                                      <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">You</span>
-                                    )}
-                                  </div>
-                                  <div className="text-xs text-gray-500">
-                                    <span className={
-                                      entry.performanceLevel === "Marketing Guru" ? "text-green-600" :
-                                      entry.performanceLevel === "Conversion Expert" ? "text-green-500" :
-                                      entry.performanceLevel === "Digital Marketer" ? "text-yellow-600" :
-                                      entry.performanceLevel === "Marketing Student" ? "text-yellow-500" :
-                                      "text-red-500"
-                                    }>
-                                      {entry.performanceLevel}
-                                    </span>
-                                  </div>
-                                </td>
-                                <td className="px-3 py-3 whitespace-nowrap text-sm text-center font-medium">
-                                  {entry.totalPoints || 0}
-                                </td>
-                                <td className="px-3 py-3 whitespace-nowrap text-sm text-center hidden sm:table-cell">
-                                  {entry.totalGuesses}
-                                </td>
+                      <div>
+                        <div className="p-3 bg-blue-50 rounded-lg mb-4 text-xs text-blue-600">
+                          <p>Only players with at least 5 guesses qualify for the leaderboard. Rankings are based on average error (lower is better).</p>
+                        </div>
+                        
+                        {scores.length < 5 && (
+                          <div className="p-3 bg-yellow-50 rounded-lg mb-4 text-xs text-yellow-700">
+                            <p>You need {5 - scores.length} more {(5 - scores.length) === 1 ? 'guess' : 'guesses'} to appear on the leaderboard.</p>
+                          </div>
+                        )}
+                        
+                        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Rank
+                                </th>
+                                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  User
+                                </th>
+                                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Guesses
+                                </th>
+                                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Avg Error
+                                  <span className="ml-1 text-xs text-primary">↑</span>
+                                </th>
+                                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Accuracy
+                                </th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {globalLeaderboard
+                                .sort((a, b) => a.averageError - b.averageError) // Sort by average error (low to high)
+                                .map((entry, index) => (
+                                  <tr key={entry.id || index} className={entry.username === username ? 'bg-blue-50' : ''}>
+                                    <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                      {index + 1}
+                                    </td>
+                                    <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-700">
+                                      {entry.username} {entry.username === username && <span className="text-xs text-primary">(You)</span>}
+                                    </td>
+                                    <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                      {entry.totalGuesses}
+                                    </td>
+                                    <td className={`px-3 py-2 whitespace-nowrap text-sm ${entry.averageError <= 5 ? 'text-green-600' : entry.averageError <= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
+                                      {entry.averageError.toFixed(1)}%
+                                    </td>
+                                    <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                      {(100 - entry.averageError).toFixed(1)}%
+                                    </td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     )}
                   </div>

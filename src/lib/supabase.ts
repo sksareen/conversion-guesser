@@ -20,6 +20,7 @@ export type LeaderboardEntryDB = {
   best_error: number;
   performance_level: string;
   total_points: number;
+  average_accuracy: number;
   created_at: string;
   updated_at: string;
 };
@@ -33,14 +34,24 @@ export const dbToAppLeaderboardEntry = (entry: LeaderboardEntryDB) => ({
   bestError: entry.best_error,
   performanceLevel: entry.performance_level,
   totalPoints: entry.total_points || 0,
+  averageAccuracy: entry.average_accuracy || (100 - entry.average_error),
   lastUpdated: new Date(entry.updated_at).getTime()
 });
 
-export const appToDbLeaderboardEntry = (username: string, averageError: number, totalGuesses: number, bestError: number, performanceLevel: string, totalPoints: number) => ({
+export const appToDbLeaderboardEntry = (
+  username: string, 
+  averageError: number, 
+  totalGuesses: number, 
+  bestError: number, 
+  performanceLevel: string, 
+  totalPoints: number,
+  averageAccuracy?: number
+) => ({
   username,
   average_error: averageError,
   total_guesses: totalGuesses,
   best_error: bestError,
   performance_level: performanceLevel,
-  total_points: totalPoints
+  total_points: totalPoints,
+  average_accuracy: averageAccuracy || (100 - averageError)
 });

@@ -223,4 +223,4 @@ MIT
 - Company logos and branding elements
 - Animations powered by Framer Motion
 - Designed with Tailwind CSS
-- Created by [Savar Sareen](https://savarsareen.com)
+- Created by [a PM](https://savarsareen.com)

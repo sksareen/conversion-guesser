@@ -10,6 +10,7 @@ export interface ScoreEntry {
   actual: number;
   error: number;
   points: number; // Points earned for this guess
+  accuracyPercentage: number; // New field: accuracy percentage
 }
 
 export interface LeaderboardEntry {
@@ -18,7 +19,7 @@ export interface LeaderboardEntry {
   averageError: number;
   totalGuesses: number;
   bestError: number;
-  totalPoints: number; // Total points for leaderboard
+  averageAccuracy: number; // Changed from totalPoints to averageAccuracy
   performanceLevel: string;
   lastUpdated: number;
 }
@@ -27,15 +28,17 @@ interface GameState {
   scores: ScoreEntry[];
   username: string;
   globalLeaderboard: LeaderboardEntry[];
-  totalPoints: number; // Track total points
+  totalPoints: number; // Legacy field, kept for backward compatibility
+  averageAccuracy: number; // New field: average accuracy percentage
   lastPoints: number; // Points from last guess
-  addScore: (score: Omit<ScoreEntry, 'points'>) => void;
+  addScore: (score: Omit<ScoreEntry, 'points' | 'accuracyPercentage'>) => void;
   clearScores: () => void;
   setUsername: (name: string) => void;
   updateLeaderboard: () => Promise<void>;
   fetchLeaderboard: () => Promise<void>;
   resetLeaderboard: () => Promise<void>;
   calculatePoints: (error: number) => number; // Helper to calculate points
+  calculateAccuracyPercentage: (error: number) => number; // New helper
   isLoading: boolean;
 }
 
@@ -51,10 +54,11 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
   username: 'Anonymous',
   globalLeaderboard: [],
   totalPoints: 0,
+  averageAccuracy: 0,
   lastPoints: 0,
   isLoading: false,
   
-  // Calculate points based on error
+  // Calculate points based on error (legacy method)
   calculatePoints: (error: number) => {
     // Perfect guess (≤ 1% error): 100 points
     if (error <= 1) return 100;
@@ -72,18 +76,33 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
     return 1;
   },
   
-  addScore: (scoreData) => {
-    const points = get().calculatePoints(scoreData.error);
-    const score = { ...scoreData, points };
-    
-    set((state: GameState) => ({ 
-      scores: [...state.scores, score],
-      totalPoints: state.totalPoints + points,
-      lastPoints: points
-    }));
+  // Calculate accuracy percentage based on error
+  calculateAccuracyPercentage: (error: number) => {
+    // Simple formula: 100% - error%, but capped at 0
+    return Math.max(0, 100 - error);
   },
   
-  clearScores: () => set({ scores: [], totalPoints: 0, lastPoints: 0 }),
+  addScore: (scoreData) => {
+    const points = get().calculatePoints(scoreData.error);
+    const accuracyPercentage = get().calculateAccuracyPercentage(scoreData.error);
+    const score = { ...scoreData, points, accuracyPercentage };
+    
+    set((state: GameState) => {
+      const newScores = [...state.scores, score];
+      // Calculate new average accuracy
+      const totalAccuracy = newScores.reduce((sum, s) => sum + s.accuracyPercentage, 0);
+      const newAverageAccuracy = totalAccuracy / newScores.length;
+      
+      return { 
+        scores: newScores,
+        totalPoints: state.totalPoints + points, // Keep for backward compatibility
+        lastPoints: points,
+        averageAccuracy: newAverageAccuracy
+      };
+    });
+  },
+  
+  clearScores: () => set({ scores: [], totalPoints: 0, lastPoints: 0, averageAccuracy: 0 }),
   
   setUsername: (name: string) => set({ username: name.slice(0, 10) }), // Limit to 10 chars
   
@@ -91,19 +110,24 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
     const state = get();
     if (state.scores.length === 0) return;
     
+    // Only update leaderboard if player has made at least 5 guesses
+    const hasMinimumGuesses = state.scores.length >= 5;
+    
     const averageError = state.scores.reduce((sum, s) => sum + s.error, 0) / state.scores.length;
     const bestError = Math.min(...state.scores.map(s => s.error));
+    const averageAccuracy = state.averageAccuracy;
     
-    let performanceLevel = "Conversion Novice";
-    if (averageError <= 5) performanceLevel = "Marketing Guru";
-    else if (averageError <= 10) performanceLevel = "Conversion Expert";
-    else if (averageError <= 15) performanceLevel = "Digital Marketer";
-    else if (averageError <= 20) performanceLevel = "Marketing Student";
+    let performanceLevel = "Funnel Novice";
+    if (averageError <= 5) performanceLevel = "Conversion Wizard";
+    else if (averageError <= 10) performanceLevel = "Funnel Expert";
+    else if (averageError <= 15) performanceLevel = "Marketing Pro";
+    else if (averageError <= 20) performanceLevel = "Funnel Student";
     
     set({ isLoading: true });
     
     try {
-      // Send the leaderboard entry to the API
+      // Send the leaderboard entry to the API even if they don't have enough guesses yet
+      // This will store their progress, but API will only return entries with 5+ guesses
       const response = await fetch('/api/leaderboard', {
         method: 'POST',
         headers: {
@@ -114,7 +138,8 @@ const createBaseStore = (set: SetState, get: () => GameState) => ({
           averageError,
           totalGuesses: state.scores.length,
           bestError,
-          totalPoints: state.totalPoints,
+          averageAccuracy, // Sending averageAccuracy to API
+          totalPoints: state.totalPoints, // Keep for backward compatibility
           performanceLevel
         }),
       });
@@ -211,7 +236,8 @@ export const useGameStore = create<GameState>()(
         scores: state.scores,
         username: state.username,
         totalPoints: state.totalPoints,
-        lastPoints: state.lastPoints
+        lastPoints: state.lastPoints,
+        averageAccuracy: state.averageAccuracy
       }),
     }
   )
